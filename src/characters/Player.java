@@ -1,7 +1,10 @@
 package src.characters;
 
+import src.status.BuffManager;
+
 public class Player extends Character {
     private int expToLevel;
+    private BuffManager buffManager = new BuffManager();
 
     public Player(String name) {
         super(name, 1, 100, 50, 10, 5, 5, 0);
@@ -11,6 +14,11 @@ public class Player extends Character {
     @Override
     public void takeTurn(Character opponent) {
         // Player turn handled in Combat
+    }
+
+    public BuffManager getBuffManager() { return buffManager; }
+    public void tickBuffs() {
+        buffManager.tick(this);
     }
 
     public void basicAttack(Character target) {
