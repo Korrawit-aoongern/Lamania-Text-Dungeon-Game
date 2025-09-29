@@ -7,9 +7,10 @@ public class SingleSlash extends PhysicalSkill {
 
     @Override
     public void use(Character user, Character target) {
-        int dmg = calcDamage(user, 35, 0);
-        target.takeDamage(dmg);
+        int dmg = calcDamage(user, 35);
+        int attackerPen = user.getPen(); // skill flatPen = 0 here
         System.out.println(user.getName() + " uses Single Slash dealing " + dmg + " damage!");
+        target.takeDamage(dmg, attackerPen);
         incrementUse();
     }
 }

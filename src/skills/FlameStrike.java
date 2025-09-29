@@ -7,8 +7,9 @@ public class FlameStrike extends MagicalSkill {
 
     @Override
     public void use(Character user, Character target) {
+        int attackerPen = user.getPen();
         int dmg = calcHybridDamage(user, 35, 75);
-        target.takeDamage(dmg);
+        target.takeDamage(dmg, attackerPen);
         System.out.println(user.getName() + " uses Flame Strike dealing " + dmg + " hybrid damage!");
         incrementUse();
     }

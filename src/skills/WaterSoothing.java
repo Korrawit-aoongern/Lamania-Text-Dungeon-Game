@@ -1,8 +1,9 @@
 package src.skills;
 
 import src.characters.Character;
+import src.status.MagBuff;
 
-class WaterSoothing extends MagicalSkill {
+public class WaterSoothing extends MagicalSkill {
     public WaterSoothing() { super("Water Soothing", 60); }
 
     @Override
@@ -10,7 +11,8 @@ class WaterSoothing extends MagicalSkill {
         int heal = (int)(user.getMag() * 0.40 * getMultiplier());
         // Healing self
         user.heal(heal);
-        System.out.println(user.getName() + " uses Water Soothing healing " + heal + " HP and gains +20 MAG for 2 turns.");
+        user.applyBuff(new MagBuff(2, 20));
+        System.out.println(user.getName() + " uses Water Soothing healing " + heal + " HP and gains 20% MAG for 2 turns.");
         incrementUse();
     }
 }

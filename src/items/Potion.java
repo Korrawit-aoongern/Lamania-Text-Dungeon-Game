@@ -17,7 +17,7 @@ public class Potion implements Item {
     }
 
     @Override
-    public void use(Player player) {
+    public void use(Player player, java.util.Scanner sc) {
         int healAmount = (player.getMaxHp() * healPercent) / 100;
         int before = player.getHp();
         player.heal(healAmount);

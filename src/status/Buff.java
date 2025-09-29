@@ -1,6 +1,6 @@
 package src.status;
 
-import src.characters.Player;
+import src.characters.Character;
 
 public abstract class Buff {
     protected String name;
@@ -17,15 +17,15 @@ public abstract class Buff {
     public int getDuration() { return duration; }
     public boolean isDebuff() { return isDebuff; }
 
-    public void tick(Player player) {
+    public void tick(Character target) {
         if (duration > 0) {
             duration--;
-            if (duration == 0) onExpire(player);
+            if (duration == 0) onExpire(target);
         }
     }
 
-    public abstract void apply(Player player);   // when gained
-    public abstract void remove(Player player);  // when lost
-    public void onExpire(Player player) { remove(player); }
+    public abstract void apply(Character target);   // when gained
+    public abstract void remove(Character target);  // when lost
+    public void onExpire(Character target) { remove(target); }
 }
 

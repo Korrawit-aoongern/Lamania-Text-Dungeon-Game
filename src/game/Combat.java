@@ -5,43 +5,215 @@ import src.characters.Enemy;
 
 import java.util.Scanner;
 import java.util.Random;
+import src.items.Scrolls;
+import src.items.Potion;
+import src.items.HolyChalice;
+import src.items.Inventory;
+import src.items.UnholyRelic;
+import src.items.CleansingCloth;
+import src.items.ItemStack;
 
 public class Combat {
     public static void fight(Player p, Enemy e, Scanner sc) {
         Random rand = new Random();
         boolean playerTurn = rand.nextBoolean();
 
-        while (p.isAlive() && e.isAlive()) {
+        Inventory inv = p.getInventory();
+
+        boolean previousPlayerTurn = playerTurn; // used to detect entering player's turn
+        while (p.getAlive() && e.getAlive()) {
+            boolean actionTaken = false;
+
+            // If we just entered the player's turn (i.e., enemy acted last), tick buffs and regen SP now
+            if (playerTurn && !previousPlayerTurn) {
+                // Tick buffs for both at start of player's turn (after enemy action completed)
+                
+                e.tickBuffs();
+                // Combat SP regen at start of player's turn: 3 SP
+                p.regenSp(3);
+            }
             if (playerTurn) {
+                
                 System.out.println("\nYour turn! (HP: " + p.getHp() + ")");
-                System.out.println("1. Attack  2. Guard  3. Flee");
+                System.out.println("1. Attack  2. Guard  3. Use Skill  4. Use Item 5. Flee");
                 String choice = sc.nextLine().trim();
 
+                if (choice.equalsIgnoreCase("stats")) {
+                    p.printStats();
+                    continue; // don't consume turn
+                }
+
                 switch (choice) {
-                    case "1" -> p.basicAttack(e);
-                    case "2" -> p.guard();
+                    case "1" -> { p.basicAttack(e); actionTaken = true; }
+                    case "2" -> { p.guard(); actionTaken = true; }
                     case "3" -> {
+                        // list skills
+                        System.out.println("Choose skill:");
+                        for (int i = 0; i < p.getSkills().size(); i++) {
+                            var s = p.getSkills().get(i);
+                            System.out.println((i + 1) + ". " + s.getName() + " (Cost " + s.getCost() + " SP)");
+                        }
+                        System.out.println((p.getSkills().size() + 1) + ". Cancel");
+                        String in = sc.nextLine().trim();
+                        int idx = -1;
+                        try { idx = Integer.parseInt(in) - 1; } catch (Exception ignored) {}
+                        if (idx == p.getSkills().size()) {
+                            // cancel
+                            System.out.println("Skill selection cancelled.");
+                            continue; // no turn consumed
+                        }
+                        if (idx >= 0 && idx < p.getSkills().size()) {
+                            var skill = p.getSkills().get(idx);
+                            if (p.getSp() >= skill.getCost()) {
+                                p.consumeSp(skill.getCost());
+                                skill.use(p, e);
+                                actionTaken = true;
+                            } else {
+                                System.out.println("Not enough SP!");
+                            }
+                        } else System.out.println("Invalid skill.");
+                    }
+                    case "4" -> {
+                        // list items
+                        System.out.println("Choose item:");
+                        var items = inv.getItems();
+                        for (int i = 0; i < items.size(); i++) {
+                            ItemStack s = items.get(i);
+                            System.out.println((i + 1) + ". " + s.getItem().getName() + " x" + s.getCount());
+                        }
+                        System.out.println((items.size() + 1) + ". Cancel");
+                        String in = sc.nextLine().trim();
+                        int idx = -1;
+                        try { idx = Integer.parseInt(in) - 1; } catch (Exception ignored) {}
+                        if (idx == items.size()) {
+                            System.out.println("Item selection cancelled.");
+                            continue; // don't consume turn
+                        }
+                        if (idx >= 0 && idx < items.size()) {
+                            ItemStack st = items.get(idx);
+                            // use via inventory helper so removal is consistent
+                            boolean used = inv.useItem(st.getItem().getName(), p, sc);
+                            if (used) actionTaken = true;
+                        } else {
+                            System.out.println("Invalid item.");
+                            continue; // invalid selection shouldn't consume turn
+                        }
+                    }
+                    case "5" -> {
+                        actionTaken = true;
                         if (rand.nextInt(100) < 50) {
                             System.out.println("You fled successfully!");
                             return;
                         } else {
                             System.out.println("Failed to flee! Lose 10% HP.");
-                            p.takeDamage(p.getHp() / 10);
+                            p.takeDamage(p.getHp() / 10, e.getPen());
                         }
                     }
                     default -> System.out.println("Invalid.");
                 }
             } else {
                 e.takeTurn(p);
+                actionTaken = true;
+                p.regenSp(3);
+                p.tickBuffs();
             }
-            playerTurn = !playerTurn;
+            // After action, check for death and revival
+            if (!p.getAlive()) {
+                if (tryRevive(inv, p)) {
+                    // revived, player gets next turn
+                    playerTurn = true;
+                    // continue combat
+                    continue;
+                } else {
+                    break;
+                }
+            }
+
+            if (!e.getAlive()) break;
+
+            if (actionTaken) {
+                playerTurn = !playerTurn;
+            }
+
+            // update previousPlayerTurn marker for next iteration
+            previousPlayerTurn = playerTurn;
         }
 
-        if (p.isAlive()) {
+        if (p.getAlive()) {
             System.out.println("You defeated " + e.getName() + "!");
-            p.gainExp(20); // simplified exp
+            p.gainExp(10);
+                System.out.println("Checking for loot...");
+                addLoot(inv, rand);
         } else {
             System.out.println("You were slain by " + e.getName() + "...");
+        }
+    }
+
+    private static boolean tryRevive(Inventory inv, Player p) {
+        ItemStack chalice = inv.find("Holy Chalice");
+        if (chalice != null && chalice.getCount() > 0) {
+            chalice.remove(1);
+            int reviveHp = (int)Math.round(p.getMaxHp() * 0.8);
+            p.setHp(reviveHp);
+            System.out.println("The Holy Chalice revives you with " + reviveHp + " HP!");
+            return true;
+        }
+        return false;
+    }
+
+    private static void addLoot(Inventory inv, Random rand) {
+        java.util.List<String> drops = new java.util.ArrayList<>();
+        // probabilities are percent chances
+        // 2.5% small potion
+        if (rand.nextInt(10000) < 250) { inv.addItem(Potion.smallPotion(), 1); drops.add("Small HP Potion"); }
+        if (rand.nextInt(10000) < 250) { inv.addItem(new UnholyRelic(), 1); drops.add("Unholy Relic"); }
+        if (rand.nextInt(10000) < 250) { inv.addItem(new CleansingCloth(), 1); drops.add("Cleansing Cloth"); }
+        if (rand.nextInt(10000) < 170) { inv.addItem(Potion.mediumPotion(), 1); drops.add("Medium HP Potion"); }
+        if (rand.nextInt(10000) < 100) { inv.addItem(Potion.largePotion(), 1); drops.add("Large HP Potion"); }
+
+        // scrolls and high value items - treat as 1% -> 100/10000
+        String[] scrolls = new String[]{
+            "Single Slash Scroll","Double Slash Scroll","Triple Slash Scroll","Spinning Slash Scroll",
+            "Downward Slash Scroll","Lunge Forward Scroll","Tornado Blade Scroll","Flame Strike Scroll",
+            "Water Soothing Scroll","Holy Blessing Scroll","Thunder Strike Scroll","Plague Split Scroll",
+            "Poison Infuse Scroll","Triple Shadow Step Scroll","Heaven's Fall Scroll","Smite Stomp Scroll",
+            "Holy Barrier Scroll","Astral Blade Scroll","Astral Fury Scroll"
+        };
+        for (String sname : scrolls) {
+            if (rand.nextInt(10000) < 100) {
+                // map name to actual Scroll factory where possible
+                switch (sname) {
+                    case "Single Slash Scroll" -> { inv.addItem(Scrolls.singleSlash(), 1); drops.add("Single Slash Scroll"); }
+                    case "Double Slash Scroll" -> { inv.addItem(Scrolls.doubleSlash(), 1); drops.add("Double Slash Scroll"); }
+                    case "Triple Slash Scroll" -> { inv.addItem(Scrolls.tripleSlash(), 1); drops.add("Triple Slash Scroll"); }
+                    case "Spinning Slash Scroll" -> { inv.addItem(Scrolls.spinningSlash(), 1); drops.add("Spinning Slash Scroll"); }
+                    case "Downward Slash Scroll" -> { inv.addItem(Scrolls.downwardSlash(), 1); drops.add("Downward Slash Scroll"); }
+                    case "Lunge Forward Scroll" -> { inv.addItem(Scrolls.lungeForward(), 1); drops.add("Lunge Forward Scroll"); }
+                    case "Tornado Blade Scroll" -> { inv.addItem(Scrolls.tornadoBlade(), 1); drops.add("Tornado Blade Scroll"); }
+                    case "Flame Strike Scroll" -> { inv.addItem(Scrolls.flameStrike(), 1); drops.add("Flame Strike Scroll"); }
+                    case "Water Soothing Scroll" -> { inv.addItem(Scrolls.waterSoothing(), 1); drops.add("Water Soothing Scroll"); }
+                    case "Holy Blessing Scroll" -> { inv.addItem(Scrolls.holyBlessing(), 1); drops.add("Holy Blessing Scroll"); }
+                    case "Thunder Strike Scroll" -> { inv.addItem(Scrolls.thunderStrike(), 1); drops.add("Thunder Strike Scroll"); }
+                    case "Plague Split Scroll" -> { inv.addItem(Scrolls.plagueSplit(), 1); drops.add("Plague Split Scroll"); }
+                    case "Poison Infuse Scroll" -> { inv.addItem(Scrolls.poisonInfuse(), 1); drops.add("Poison Infuse Scroll"); }
+                    case "Triple Shadow Step Scroll" -> { inv.addItem(Scrolls.tripleShadowStep(), 1); drops.add("Triple Shadow Step Scroll"); }
+                    case "Heaven's Fall Scroll" -> { inv.addItem(Scrolls.heavensFall(), 1); drops.add("Heaven's Fall Scroll"); }
+                    case "Smite Stomp Scroll" -> { inv.addItem(Scrolls.smiteStomp(), 1); drops.add("Smite Stomp Scroll"); }
+                    case "Holy Barrier Scroll" -> { inv.addItem(Scrolls.holyBarrier(), 1); drops.add("Holy Barrier Scroll"); }
+                    case "Astral Blade Scroll" -> { inv.addItem(Scrolls.astralBlade(), 1); drops.add("Astral Blade Scroll"); }
+                    case "Astral Fury Scroll" -> { inv.addItem(Scrolls.astralFury(), 1); drops.add("Astral Fury Scroll"); }
+                }
+            }
+        }
+
+        // rare items
+        if (rand.nextInt(10000) < 40) { inv.addItem(Potion.supremePotion(), 1); drops.add("Supreme HP Elixir"); }
+        if (rand.nextInt(10000) < 10) { inv.addItem(new HolyChalice(), 1); drops.add("Holy Chalice"); }
+
+        if (drops.isEmpty()) {
+            System.out.println("Loot: none");
+        } else {
+            for (String d : drops) System.out.println("Loot: " + d);
         }
     }
 }

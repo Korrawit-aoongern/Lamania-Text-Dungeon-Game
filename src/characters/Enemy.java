@@ -8,6 +8,6 @@ public class Enemy extends Character {
     @Override
     public void takeTurn(Character opponent) {
         System.out.println(name + " attacks!");
-        opponent.takeDamage(atk);
+        opponent.takeDamage(atk, pen);
     }
 }

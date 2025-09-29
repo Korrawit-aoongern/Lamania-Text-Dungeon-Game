@@ -1,13 +1,15 @@
 package src.skills;
 
 import src.characters.Character;
+import src.status.PoisonWeaponBuff;
 
-class PoisonInfuse extends MagicalSkill {
-    public PoisonInfuse() { super("Poison Infuse", 84); }
+public class PoisonInfuse extends MagicalSkill {
+    public PoisonInfuse() { super("Poison Infuse", 10); }
 
     @Override
     public void use(Character user, Character target) {
-        System.out.println(user.getName() + " infuses blade with poison! Physical skills deal +45% MAG follow-up dmg for 3 turns.");
+        user.applyBuff(new PoisonWeaponBuff(3, 45, 1));
+        System.out.println(user.getName() + " infuses blade with poison! Physical skills deal +45% MAG follow-up dmg for 3 skills use.");
         incrementUse();
     }
 }

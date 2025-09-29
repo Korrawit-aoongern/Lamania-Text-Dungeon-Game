@@ -7,10 +7,9 @@ public abstract class PhysicalSkill extends AbstractSkill {
         super(name, cost);
     }
 
-    protected int calcDamage(Character user, double percentAtk, int flatPen) {
+    protected int calcDamage(Character user, double percentAtk) {
         double scaled = user.getAtk() * (percentAtk / 100.0) * getMultiplier();
         int dmg = (int)scaled;
-        // PEN logic: flatPen is additional penetration applied
-        return Math.max(1, dmg + flatPen);
+        return Math.max(1, dmg);
     }
 }

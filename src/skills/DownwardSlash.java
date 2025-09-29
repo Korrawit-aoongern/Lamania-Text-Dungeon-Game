@@ -1,15 +1,18 @@
 package src.skills;
 
 import src.characters.Character;
+import src.status.DefDebuff;
 
-class DownwardSlash extends PhysicalSkill {
+public class DownwardSlash extends PhysicalSkill {
     public DownwardSlash() { super("Downward Slash", 27); }
 
     @Override
     public void use(Character user, Character target) {
-        int dmg = calcDamage(user, 78, 0);
-        target.takeDamage(dmg);
-        System.out.println(user.getName() + " performs Downward Slash dealing " + dmg + " damage! DEF reduced by 10% for 2 turns.");
+        int attackerPen = user.getPen();
+        int dmg = calcDamage(user, 78);
+        target.takeDamage(dmg, attackerPen);
+        target.applyBuff(new DefDebuff(10, 1));
+        System.out.println(user.getName() + " performs Downward Slash dealing " + dmg + " damage! DEF reduced by 10% for 1 turns.");
         incrementUse();
     }
 }
