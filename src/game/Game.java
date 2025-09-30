@@ -92,6 +92,12 @@ public class Game {
             if (inv.find("Unholy Relic") != null) chance *= 1.5; // +50%
             if (inv.find("Cleansing Cloth") != null) chance *= 0.5; // -50%
 
+            // Check for exits: if we stepped on an EXIT tile, player wins immediately
+            if (map.getTile(px, py) == Tile.EXIT) {
+                System.out.println("You found the exit! Victory!");
+                return; // end the game
+            }
+
             if (rand.nextInt(100) < (int)Math.round(chance)) {
                 Enemy e = spawnEnemy();
                 System.out.println("⚔️ A wild " + e.getName() + " appears!");
