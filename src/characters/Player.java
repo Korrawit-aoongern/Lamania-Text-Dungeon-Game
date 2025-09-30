@@ -5,18 +5,20 @@ import src.skills.PlagueSplit;
 import src.skills.SingleSlash;
 import src.skills.WaterSoothing;
 import src.skills.HolyBlessing;
+import src.items.Blade;
 import src.items.Inventory;
 import src.items.Potion;
 
 public class Player extends Character {
     private int expToLevel;
     private Inventory inventory = new Inventory();
+    private src.items.Blade equippedBlade = null;
     // temporary consumable effects that last a number of movement steps
     private int unholyRelicSteps = 0;
     private int cleansingClothSteps = 0;
 
     public Player(String name) {
-        super(name, 1, 100, 50, 20, 5, 5, 0);
+        super(name, 1, 100, 50, 30, 5, 5, 0);
         this.expToLevel = 100;
         skills.add(new SingleSlash());
         skills.add(new PlagueSplit());
@@ -38,12 +40,12 @@ public class Player extends Character {
     // Apply consumable effects (in steps)
     public void applyUnholyRelic(int steps) {
         unholyRelicSteps = steps;
-        System.out.println(name + " uses Unholy Relic. Encounter rate increased for " + steps + " steps.");
+        System.out.println(getName() + " uses Unholy Relic. Encounter rate increased for " + steps + " steps.");
     }
 
     public void applyCleansingCloth(int steps) {
         cleansingClothSteps = steps;
-        System.out.println(name + " uses Cleansing Cloth. Encounters reduced for " + steps + " steps.");
+        System.out.println(getName() + " uses Cleansing Cloth. Encounters reduced for " + steps + " steps.");
     }
 
     public boolean hasUnholyRelicActive() { return unholyRelicSteps > 0; }
@@ -53,11 +55,11 @@ public class Player extends Character {
     public void tickConsumableSteps() {
         if (unholyRelicSteps > 0) {
             unholyRelicSteps--;
-            if (unholyRelicSteps == 0) System.out.println(name + "'s Unholy Relic effect has expired.");
+            if (unholyRelicSteps == 0) System.out.println(getName() + "'s Unholy Relic effect has expired.");
         }
         if (cleansingClothSteps > 0) {
             cleansingClothSteps--;
-            if (cleansingClothSteps == 0) System.out.println(name + "'s Cleansing Cloth effect has expired.");
+            if (cleansingClothSteps == 0) System.out.println(getName() + "'s Cleansing Cloth effect has expired.");
         }
     }
 
@@ -66,15 +68,39 @@ public class Player extends Character {
         inventory.addItem(item, qty);
     }
 
+    // Equip a blade, applying its bonuses and remembering the equipped item
+    public void equipBlade(src.items.Blade blade) {
+        if (equippedBlade != null) {
+            // remove previous bonuses
+            atk -= equippedBlade.getAtkBonus();
+            pen -= equippedBlade.getPenBonus();
+        }
+        equippedBlade = blade;
+        atk += blade.getAtkBonus();
+        pen += blade.getPenBonus();
+        System.out.println(getName() + " equipped " + blade.getName() + "! ATK +" + blade.getAtkBonus() + ", PEN +" + blade.getPenBonus());
+    }
+
+    public boolean hasExcaliburEquipped() {
+        return equippedBlade != null && "Excalibur".equals(equippedBlade.getName());
+    }
+
     // Print player stats and known skills
     public void printStats() {
         System.out.println("--- Player Stats ---");
-        System.out.println("Name: " + name + "  Level: " + level + "  EXP: " + exp);
+        System.out.println("Name: " + getName() + "  Level: " + level + "  EXP: " + exp);
         System.out.println("HP: " + hp + "/" + maxHp + "  SP: " + sp);
         System.out.println("ATK: " + getAtk() + "  DEF: " + getDef() + "  MAG: " + getMag() + "  PEN: " + getPen());
         System.out.println("Active buffs/debuffs:");
         for (var b : buffManager.getActiveBuffs()) {
             System.out.println("  - " + b.getName() + " (" + b.getDuration() + " turns)");
+        }
+        // Show active consumable effects
+        if (unholyRelicSteps > 0) {
+            System.out.println("  - Unholy Relic (" + unholyRelicSteps + " steps)");
+        }
+        if (cleansingClothSteps > 0) {
+            System.out.println("  - Cleansing Cloth (" + cleansingClothSteps + " steps)");
         }
         System.out.println("Skills:");
         for (int i = 0; i < skills.size(); i++) {
@@ -86,7 +112,7 @@ public class Player extends Character {
     public void basicAttack(Character target) {
         int dmg = (int)Math.round(atk * 0.2);
         target.takeDamage(dmg, pen);
-        System.out.println(name + " attacks!");
+        System.out.println(getName() + " attacks!");
     }
 
     public void guard() {
@@ -99,15 +125,15 @@ public class Player extends Character {
         if (!hasGuardDef) {
             src.status.Defbuff db = new src.status.Defbuff(1, 30);
             applyBuff(db, "guard");
-            System.out.println(name + " guards! DEF temporarily up for 1 turn.");
+            System.out.println(getName() + " guards! DEF temporarily up for 1 turn.");
         } else {
-            System.out.println(name + " already has a DEF buff from guarding; guard has no additional effect.");
+            System.out.println(getName() + " already has a DEF buff from guarding; guard has no additional effect.");
         }
     }
 
     public void gainExp(int amount) {
         exp += amount;
-        System.out.println(name + " gained " + amount + " EXP!");
+        System.out.println(getName() + " gained " + amount + " EXP!");
         // Handle possible multiple level-ups with carryover
         while (exp >= expToLevel) {
             exp -= expToLevel;
@@ -137,12 +163,12 @@ public class Player extends Character {
     @Override
     public void setDamageTakenModifier(double modifier) {
         super.setDamageTakenModifier(modifier);
-        System.out.println(name + " damage taken modifier set to " + modifier);
+        System.out.println(getName() + " damage taken modifier set to " + modifier);
     }
 
     @Override
     public void setMaxHp(int newMaxHp) {
         super.setMaxHp(newMaxHp);
-        System.out.println(name + "'s max HP changed to " + newMaxHp);
+        System.out.println(getName() + "'s max HP changed to " + newMaxHp);
     }
 }

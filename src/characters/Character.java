@@ -42,7 +42,23 @@ public abstract class Character {
     }
 
     // Encapsulation (getters/setters)
-    public String getName() { return name; }
+    public String getName() {
+        // Return a colored display name depending on concrete type.
+        final String RESET = "\u001B[0m";
+        final String ORANGE = "\u001B[38;5;208m"; // 256-color orange (may fall back to plain on unsupported terminals)
+        final String RED = "\u001B[31m";
+        if (this instanceof Player) {
+            Player pl = (Player)this;
+            if (pl.hasExcaliburEquipped()) {
+                final String YELLOW = "\u001B[33m";
+                return YELLOW + name + RESET;
+            }
+            return ORANGE + name + RESET;
+        } else if (this instanceof Enemy) {
+            return RED + name + RESET;
+        }
+        return name;
+    }
     public int getHp() { return hp; }
     public int getMaxHp() { return maxHp; }
     public int getSp() { return sp; }
@@ -63,7 +79,9 @@ public abstract class Character {
         for (int i = 0; i < levels; i++) {
             level++;
             atk = (int)Math.round(atk * 1.1);
-            def = (int)Math.round(def * 1.1);
+            int newDef = (int)Math.round(def * 1.1);
+            if (newDef == def) newDef = def + 1; // ensure small DEF values increase at least by 1 per level
+            def = newDef;
             mag = (int)Math.round(mag * 1.1);
             pen = (int)Math.round(pen * 1.1);
             int newMaxHp = (int)Math.round(maxHp * 1.1);
@@ -122,7 +140,7 @@ public abstract class Character {
     // SP regeneration / addition helper
     public void regenSp(int amount) {
         this.sp = Math.min(maxSp, this.sp + amount);
-        System.out.println(name + " regenerates " + amount + " SP. (SP: " + sp + "/" + maxSp + ")");
+        System.out.println(getName() + " regenerates " + amount + " SP. (SP: " + sp + "/" + maxSp + ")");
     }
 
     public int getMaxSp() { return maxSp; }
@@ -153,7 +171,7 @@ public abstract class Character {
 
     public void takeDamage(int dmg, int attackerPen) {
         if (immune) {
-            System.out.println(name + " is immune to damage!");
+            System.out.println(getName() + " is immune to damage!");
             return;
         }
         else {
@@ -163,7 +181,7 @@ public abstract class Character {
                 hp = 0;
                 isAlive = false;
             }
-            System.out.println(name + " takes " + finalDMG + " damage! (HP left: " + hp + ")");
+            System.out.println(getName() + " takes " + finalDMG + " damage! (HP left: " + hp + ")");
         }
     }
 

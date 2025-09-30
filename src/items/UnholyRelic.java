@@ -8,7 +8,7 @@ public class UnholyRelic implements Item {
 
     @Override
     public void use(Player target, java.util.Scanner sc) {
-        // Activate a 100-step effect that increases encounters by 50%
-        target.applyUnholyRelic(100);
+        // Activate a 30-step effect that increases encounters by 50%
+        target.applyUnholyRelic(30);
     }
 }

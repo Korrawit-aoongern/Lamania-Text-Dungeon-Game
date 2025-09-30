@@ -129,8 +129,14 @@ public class Combat {
                     default -> System.out.println("Invalid.");
                 }
             } else {
-                e.takeTurn(p);
-                actionTaken = true;
+                // If enemy is stunned, they skip their turn immediately
+                if (e.isStunned()) {
+                    System.out.println(e.getName() + " is stunned and cannot act this turn!");
+                    actionTaken = true;
+                } else {
+                    e.takeTurn(p);
+                    actionTaken = true;
+                }
             }
             // After action, check for death and revival
             if (!p.getAlive()) {
@@ -191,8 +197,9 @@ public class Combat {
         // probabilities are percent chances
         // 2.5% small potion
         if (rand.nextInt(10000) < 1000) { inv.addItem(Potion.smallPotion(), 1); drops.add("Small HP Potion"); }
-        if (rand.nextInt(10000) < 250) { inv.addItem(new UnholyRelic(), 1); drops.add("Unholy Relic"); }
-        if (rand.nextInt(10000) < 250) { inv.addItem(new CleansingCloth(), 1); drops.add("Cleansing Cloth"); }
+    // Increase Unholy/Cleansing spawn chance to 3% (300/10000)
+    if (rand.nextInt(10000) < 300) { inv.addItem(new UnholyRelic(), 1); drops.add("Unholy Relic"); }
+    if (rand.nextInt(10000) < 300) { inv.addItem(new CleansingCloth(), 1); drops.add("Cleansing Cloth"); }
         if (rand.nextInt(10000) < 170) { inv.addItem(Potion.mediumPotion(), 1); drops.add("Medium HP Potion"); }
         if (rand.nextInt(10000) < 100) { inv.addItem(Potion.largePotion(), 1); drops.add("Large HP Potion"); }
 
@@ -202,7 +209,7 @@ public class Combat {
             "Downward Slash Scroll","Lunge Forward Scroll","Tornado Blade Scroll","Flame Strike Scroll",
             "Water Soothing Scroll","Holy Blessing Scroll","Thunder Strike Scroll","Plague Split Scroll",
             "Poison Infuse Scroll","Triple Shadow Step Scroll","Heaven's Fall Scroll","Smite Stomp Scroll",
-            "Holy Barrier Scroll","Astral Blade Scroll","Astral Fury Scroll","Excalibur"
+            "Holy Barrier Scroll","Astral Blade Scroll","Astral Fury Scroll"
         };
         for (String sname : scrolls) {
             if (rand.nextInt(10000) < 100) {
@@ -234,7 +241,7 @@ public class Combat {
         // rare items
         if (rand.nextInt(10000) < 40) { inv.addItem(Potion.supremePotion(), 1); drops.add("Supreme HP Elixir"); }
         if (rand.nextInt(10000) < 10) { inv.addItem(new HolyChalice(), 1); drops.add("Holy Chalice"); }
-        if (rand.nextInt(10000) < 1) { inv.addItem(new Blade("Excalibur", 300, 150), 1); drops.add("Blade: Excalibur"); }
+        if (rand.nextInt(10000) < 10000) { inv.addItem(new Blade("Excalibur", 300, 150), 1); drops.add("Blade: Excalibur"); }
 
         if (drops.isEmpty()) {
             System.out.println("Loot: none");

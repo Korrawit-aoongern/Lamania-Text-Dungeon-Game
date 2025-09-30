@@ -8,7 +8,7 @@ public class CleansingCloth implements Item {
 
     @Override
     public void use(Player target, java.util.Scanner sc) {
-        // Activate a 100-step effect that reduces encounters by 50%
-        target.applyCleansingCloth(100);
+        // Activate a 30-step effect that reduces encounters by 50%
+        target.applyCleansingCloth(30);
     }
 }
