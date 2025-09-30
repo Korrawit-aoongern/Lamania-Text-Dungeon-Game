@@ -10,6 +10,7 @@ import src.items.Potion;
 import src.items.HolyChalice;
 import src.items.Inventory;
 import src.items.UnholyRelic;
+import src.items.Blade;
 import src.items.CleansingCloth;
 import src.items.ItemStack;
 
