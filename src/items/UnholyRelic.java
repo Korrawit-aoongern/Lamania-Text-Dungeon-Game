@@ -8,6 +8,7 @@ public class UnholyRelic implements Item {
 
     @Override
     public void use(Player target, java.util.Scanner sc) {
-        System.out.println("The Unholy Relic hums. It's not consumable.");
+        // Activate a 100-step effect that increases encounters by 50%
+        target.applyUnholyRelic(100);
     }
 }

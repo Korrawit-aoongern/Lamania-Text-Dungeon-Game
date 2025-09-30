@@ -1,21 +1,27 @@
 package src.characters;
 
 
-import src.skills.PoisonInfuse;
+import src.skills.PlagueSplit;
 import src.skills.SingleSlash;
- 
+import src.skills.WaterSoothing;
+import src.skills.HolyBlessing;
 import src.items.Inventory;
 import src.items.Potion;
 
 public class Player extends Character {
     private int expToLevel;
     private Inventory inventory = new Inventory();
+    // temporary consumable effects that last a number of movement steps
+    private int unholyRelicSteps = 0;
+    private int cleansingClothSteps = 0;
 
     public Player(String name) {
         super(name, 1, 100, 50, 20, 5, 5, 0);
         this.expToLevel = 100;
         skills.add(new SingleSlash());
-        skills.add(new PoisonInfuse());
+        skills.add(new PlagueSplit());
+        skills.add(new WaterSoothing());
+        skills.add(new HolyBlessing());
         // starting items (optional)
         inventory.addItem(Potion.smallPotion(), 1);
     }
@@ -29,6 +35,32 @@ public class Player extends Character {
 
     public Inventory getInventory() { return inventory; }
 
+    // Apply consumable effects (in steps)
+    public void applyUnholyRelic(int steps) {
+        unholyRelicSteps = steps;
+        System.out.println(name + " uses Unholy Relic. Encounter rate increased for " + steps + " steps.");
+    }
+
+    public void applyCleansingCloth(int steps) {
+        cleansingClothSteps = steps;
+        System.out.println(name + " uses Cleansing Cloth. Encounters reduced for " + steps + " steps.");
+    }
+
+    public boolean hasUnholyRelicActive() { return unholyRelicSteps > 0; }
+    public boolean hasCleansingClothActive() { return cleansingClothSteps > 0; }
+
+    // Called by the game each time the player takes a movement step
+    public void tickConsumableSteps() {
+        if (unholyRelicSteps > 0) {
+            unholyRelicSteps--;
+            if (unholyRelicSteps == 0) System.out.println(name + "'s Unholy Relic effect has expired.");
+        }
+        if (cleansingClothSteps > 0) {
+            cleansingClothSteps--;
+            if (cleansingClothSteps == 0) System.out.println(name + "'s Cleansing Cloth effect has expired.");
+        }
+    }
+
     // convenience: add item to inventory
     public void addToInventory(src.items.Item item, int qty) {
         inventory.addItem(item, qty);
@@ -40,6 +72,10 @@ public class Player extends Character {
         System.out.println("Name: " + name + "  Level: " + level + "  EXP: " + exp);
         System.out.println("HP: " + hp + "/" + maxHp + "  SP: " + sp);
         System.out.println("ATK: " + getAtk() + "  DEF: " + getDef() + "  MAG: " + getMag() + "  PEN: " + getPen());
+        System.out.println("Active buffs/debuffs:");
+        for (var b : buffManager.getActiveBuffs()) {
+            System.out.println("  - " + b.getName() + " (" + b.getDuration() + " turns)");
+        }
         System.out.println("Skills:");
         for (int i = 0; i < skills.size(); i++) {
             System.out.println("  " + (i + 1) + ". " + skills.get(i).getName());
@@ -55,37 +91,48 @@ public class Player extends Character {
 
     public void guard() {
         // Apply a one-turn DEF buff (30% increase) but don't stack if already present
-        boolean hasDef = false;
+        // Only consider an existing DEF buff a conflict if it was applied by the guard action itself
+        boolean hasGuardDef = false;
         for (src.status.Buff b : buffManager.getActiveBuffs()) {
-            if (b.getName().equals("DEF Buff")) { hasDef = true; break; }
+            if (b.getName().equals("DEF Buff") && "guard".equals(b.getSource())) { hasGuardDef = true; break; }
         }
-        if (!hasDef) {
+        if (!hasGuardDef) {
             src.status.Defbuff db = new src.status.Defbuff(1, 30);
-            applyBuff(db);
+            applyBuff(db, "guard");
             System.out.println(name + " guards! DEF temporarily up for 1 turn.");
         } else {
-            System.out.println(name + " already has a DEF buff; guard has no additional effect.");
+            System.out.println(name + " already has a DEF buff from guarding; guard has no additional effect.");
         }
     }
 
     public void gainExp(int amount) {
         exp += amount;
         System.out.println(name + " gained " + amount + " EXP!");
-        if (exp >= expToLevel) {
+        // Handle possible multiple level-ups with carryover
+        while (exp >= expToLevel) {
+            exp -= expToLevel;
             levelUp();
         }
     }
 
     private void levelUp() {
         level++;
-        exp = 0;
+        System.out.println("LEVEL UP! Now level " + level);
+        // increase next level requirement
         expToLevel += 10;
         System.out.println("LEVEL UP! Now level " + level);
-        atk += 2;
-        // properly increase max HP and heal to full of the new max
-        int newMax = getMaxHp() + 10;
-        setMaxHp(newMax);
-        setHp(newMax);
+        // increase all base stats by 10% (rounding)
+        atk = (int)Math.round(atk * 1.1);
+        def = (int)Math.round(def * 1.1);
+        mag = (int)Math.round(mag * 1.1);
+        pen = (int)Math.round(pen * 1.1);
+        // increase max HP and SP by 10% and refill to max
+        int newMaxHp = (int)Math.round(getMaxHp() * 1.1);
+        setMaxHp(newMaxHp);
+        setHp(newMaxHp);
+        int newMaxSp = (int)Math.round(getMaxSp() * 1.1);
+        setMaxSp(newMaxSp);
+        setSp(newMaxSp);
     }
     @Override
     public void setDamageTakenModifier(double modifier) {

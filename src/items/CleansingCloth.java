@@ -8,6 +8,7 @@ public class CleansingCloth implements Item {
 
     @Override
     public void use(Player target, java.util.Scanner sc) {
-        System.out.println("The Cleansing Cloth shimmers. It's not consumable.");
+        // Activate a 100-step effect that reduces encounters by 50%
+        target.applyCleansingCloth(100);
     }
 }
