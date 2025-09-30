@@ -1,14 +1,12 @@
 package src.game;
 
-import src.characters.Player;
-import src.characters.Enemy;
-import src.characters.enemies.Goblin;
-import src.characters.enemies.Slime;
-
 import java.util.Random;
 import java.util.Scanner;
+import src.characters.Enemy;
+import src.characters.Player;
+import src.characters.enemies.Goblin;
+import src.characters.enemies.Slime;
 import src.items.Inventory;
-
 
 public class Game {
     private final Player player;
@@ -79,7 +77,15 @@ public class Game {
                 continue;
             }
 
-            px = nx; py = ny;
+            px = nx; 
+            py = ny;
+
+            // 🔹 เช็คถ้าผู้เล่นถึงประตูทางออก
+            if (map.getTile(px, py) == Tile.EXIT) {
+                System.out.println("🎉 You found the exit! Congratulations, you escaped the dungeon!");
+                break;
+            }
+
             // count steps and regen SP every 2 steps
             steps++;
             if (steps % 2 == 0) {

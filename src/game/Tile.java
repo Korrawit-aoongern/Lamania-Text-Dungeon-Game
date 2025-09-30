@@ -6,7 +6,14 @@ public enum Tile {
     PLAYER('@'),
     EXIT('E');
 
+
     private final char symbol;
-    Tile(char symbol) { this.symbol = symbol; }
-    public char getSymbol() { return symbol; }
+
+    Tile(char symbol) { 
+        this.symbol = symbol; 
+    }
+
+    public char getSymbol() { 
+        return symbol; 
+    }
 }
