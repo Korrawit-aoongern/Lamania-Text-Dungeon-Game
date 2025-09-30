@@ -4,7 +4,8 @@ public enum Tile {
     WALL('#'),
     FLOOR('.'),
     PLAYER('@'),
-    EXIT('E'); // ประตูทางออก
+    EXIT('E');
+
 
     private final char symbol;
 
