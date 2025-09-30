@@ -62,16 +62,17 @@ public class Player extends Character {
 
     public void guard() {
         // Apply a one-turn DEF buff (30% increase) but don't stack if already present
-        boolean hasDef = false;
+        // Only consider an existing DEF buff a conflict if it was applied by the guard action itself
+        boolean hasGuardDef = false;
         for (src.status.Buff b : buffManager.getActiveBuffs()) {
-            if (b.getName().equals("DEF Buff")) { hasDef = true; break; }
+            if (b.getName().equals("DEF Buff") && "guard".equals(b.getSource())) { hasGuardDef = true; break; }
         }
-        if (!hasDef) {
+        if (!hasGuardDef) {
             src.status.Defbuff db = new src.status.Defbuff(1, 30);
             applyBuff(db, "guard");
             System.out.println(name + " guards! DEF temporarily up for 1 turn.");
         } else {
-            System.out.println(name + " already has a DEF buff; guard has no additional effect.");
+            System.out.println(name + " already has a DEF buff from guarding; guard has no additional effect.");
         }
     }
 
