@@ -6,7 +6,6 @@ import src.characters.Enemy;
 import src.characters.Player;
 import src.characters.enemies.Goblin;
 import src.characters.enemies.Slime;
-import src.items.Inventory;
 
 public class Game {
     private final Player player;
@@ -88,15 +87,16 @@ public class Game {
 
             // count steps and regen SP every 2 steps
             steps++;
+            // tick consumable step counters (Unholy Relic / Cleansing Cloth)
+            player.tickConsumableSteps();
             if (steps % 2 == 0) {
                 player.regenSp(3);
             }
 
-            // base 20% chance random encounter, modified by items
+            // base 20% chance random encounter, modified by active consumable effects
             double chance = 20.0;
-            Inventory inv = player.getInventory();
-            if (inv.find("Unholy Relic") != null) chance *= 1.5; // +50%
-            if (inv.find("Cleansing Cloth") != null) chance *= 0.5; // -50%
+            if (player.hasUnholyRelicActive()) chance *= 1.5; // +50%
+            if (player.hasCleansingClothActive()) chance *= 0.5; // -50%
 
             // Check for exits: if we stepped on an EXIT tile, player wins immediately
             if (map.getTile(px, py) == Tile.EXIT) {
@@ -106,7 +106,14 @@ public class Game {
 
             if (rand.nextInt(100) < (int)Math.round(chance)) {
                 Enemy e = spawnEnemy();
-                System.out.println("⚔️ A wild " + e.getName() + " appears!");
+                // Scale enemy based on how many steps the player has taken: +1 level per 50 steps
+                int extraLevels = steps / 50;
+                if (extraLevels > 0) {
+                    e.scaleUpByLevels(extraLevels);
+                    System.out.println("⚔️ A wild " + e.getName() + " appears! It looks tougher (" + extraLevels + " extra levels).");
+                } else {
+                    System.out.println("⚔️ A wild " + e.getName() + " appears!");
+                }
                 Combat.fight(player, e, sc);
             }
         }
@@ -114,6 +121,34 @@ public class Game {
     }
 
     private Enemy spawnEnemy() {
-        return rand.nextBoolean() ? new Goblin() : new Slime();
+        // Determine spawn level relative to the player's level
+        int playerLevel = player.getLevel();
+        // Build a small weighted distribution for levels: player-3 .. player are base options
+        // and player+1 is a rare high-level option. We'll use integer weights.
+        int minLevel = Math.max(1, playerLevel - 3);
+        // weights: each of minLevel..playerLevel gets weight 100, player+1 gets weight 10
+        int baseWeight = 100;
+        int rareWeight = 10; // ~10% relative weight
+
+        // Sum weights for range
+        int rangeCount = playerLevel - minLevel + 1;
+        int totalWeight = rangeCount * baseWeight + rareWeight;
+
+        int pick = rand.nextInt(totalWeight);
+        int chosenLevel;
+        if (pick >= rangeCount * baseWeight) {
+            // pick the rare higher level
+            chosenLevel = playerLevel + 1;
+        } else {
+            // pick in the normal range
+            int idx = pick / baseWeight; // 0..rangeCount-1
+            chosenLevel = minLevel + idx;
+        }
+
+        Enemy e = rand.nextBoolean() ? new Goblin() : new Slime();
+        // Scale enemy to the chosen level (scaleUpByLevels increases levels incrementally)
+        int levelsToAdd = Math.max(0, chosenLevel - e.getLevel());
+        if (levelsToAdd > 0) e.scaleUpByLevels(levelsToAdd);
+        return e;
     }
 }

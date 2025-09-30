@@ -149,7 +149,7 @@ public class Combat {
 
         if (p.getAlive()) {
             System.out.println("You defeated " + e.getName() + "!");
-            p.gainExp(100);
+            p.gainExp(1000);
                 System.out.println("Checking for loot...");
                 addLoot(inv, rand);
         } else {
@@ -173,7 +173,7 @@ public class Combat {
         java.util.List<String> drops = new java.util.ArrayList<>();
         // probabilities are percent chances
         // 2.5% small potion
-        if (rand.nextInt(10000) < 250) { inv.addItem(Potion.smallPotion(), 1); drops.add("Small HP Potion"); }
+        if (rand.nextInt(10000) < 1000) { inv.addItem(Potion.smallPotion(), 1); drops.add("Small HP Potion"); }
         if (rand.nextInt(10000) < 250) { inv.addItem(new UnholyRelic(), 1); drops.add("Unholy Relic"); }
         if (rand.nextInt(10000) < 250) { inv.addItem(new CleansingCloth(), 1); drops.add("Cleansing Cloth"); }
         if (rand.nextInt(10000) < 170) { inv.addItem(Potion.mediumPotion(), 1); drops.add("Medium HP Potion"); }

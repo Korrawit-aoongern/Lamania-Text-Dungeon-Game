@@ -56,6 +56,26 @@ public abstract class Character {
     public boolean getAlive() { return hp > 0; }
     public BuffManager getBuffManager() { return buffManager; }
 
+    // Scale character up by a number of levels. Each level increases base stats by 10% (rounded), and
+    // increases max HP and SP by 10% (then sets current HP/SP to max for enemies spawned at higher level).
+    public void scaleUpByLevels(int levels) {
+        if (levels <= 0) return;
+        for (int i = 0; i < levels; i++) {
+            level++;
+            atk = (int)Math.round(atk * 1.1);
+            def = (int)Math.round(def * 1.1);
+            mag = (int)Math.round(mag * 1.1);
+            pen = (int)Math.round(pen * 1.1);
+            int newMaxHp = (int)Math.round(maxHp * 1.1);
+            setMaxHp(newMaxHp);
+            int newMaxSp = (int)Math.round(maxSp * 1.1);
+            setMaxSp(newMaxSp);
+        }
+        // replenish to max after scaling
+        this.hp = this.maxHp;
+        this.sp = this.maxSp;
+    }
+
     public void setDamageTakenModifier(double modifier) {
         this.damageTakenModifier = modifier;
     }

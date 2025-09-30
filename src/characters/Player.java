@@ -11,6 +11,9 @@ import src.items.Potion;
 public class Player extends Character {
     private int expToLevel;
     private Inventory inventory = new Inventory();
+    // temporary consumable effects that last a number of movement steps
+    private int unholyRelicSteps = 0;
+    private int cleansingClothSteps = 0;
 
     public Player(String name) {
         super(name, 1, 100, 50, 20, 5, 5, 0);
@@ -31,6 +34,32 @@ public class Player extends Character {
     // Use Character's buffManager and tick implementation
 
     public Inventory getInventory() { return inventory; }
+
+    // Apply consumable effects (in steps)
+    public void applyUnholyRelic(int steps) {
+        unholyRelicSteps = steps;
+        System.out.println(name + " uses Unholy Relic. Encounter rate increased for " + steps + " steps.");
+    }
+
+    public void applyCleansingCloth(int steps) {
+        cleansingClothSteps = steps;
+        System.out.println(name + " uses Cleansing Cloth. Encounters reduced for " + steps + " steps.");
+    }
+
+    public boolean hasUnholyRelicActive() { return unholyRelicSteps > 0; }
+    public boolean hasCleansingClothActive() { return cleansingClothSteps > 0; }
+
+    // Called by the game each time the player takes a movement step
+    public void tickConsumableSteps() {
+        if (unholyRelicSteps > 0) {
+            unholyRelicSteps--;
+            if (unholyRelicSteps == 0) System.out.println(name + "'s Unholy Relic effect has expired.");
+        }
+        if (cleansingClothSteps > 0) {
+            cleansingClothSteps--;
+            if (cleansingClothSteps == 0) System.out.println(name + "'s Cleansing Cloth effect has expired.");
+        }
+    }
 
     // convenience: add item to inventory
     public void addToInventory(src.items.Item item, int qty) {
@@ -79,14 +108,17 @@ public class Player extends Character {
     public void gainExp(int amount) {
         exp += amount;
         System.out.println(name + " gained " + amount + " EXP!");
-        if (exp >= expToLevel) {
+        // Handle possible multiple level-ups with carryover
+        while (exp >= expToLevel) {
+            exp -= expToLevel;
             levelUp();
         }
     }
 
     private void levelUp() {
         level++;
-        exp = 0;
+        System.out.println("LEVEL UP! Now level " + level);
+        // increase next level requirement
         expToLevel += 10;
         System.out.println("LEVEL UP! Now level " + level);
         // increase all base stats by 10% (rounding)

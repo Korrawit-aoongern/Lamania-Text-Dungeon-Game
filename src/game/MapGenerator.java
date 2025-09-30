@@ -34,10 +34,20 @@ public class MapGenerator {
         int halfWidthRight = 10;
         int halfHeightUp = 4;    // py - 4 to py + 5 => 10 rows
         int halfHeightDown = 5;
+        final String GREEN = "\u001B[32m";
+        final String RESET = "\u001B[0m";
         for (int y = py - halfHeightUp; y <= py + halfHeightDown; y++) {
             for (int x = px - halfWidthLeft; x <= px + halfWidthRight; x++) {
-                if (x == px && y == py) System.out.print('@');
-                else System.out.print(getTile(x, y).getSymbol());
+                if (x == px && y == py) {
+                    System.out.print('@');
+                } else {
+                    Tile t = getTile(x, y);
+                    if (t == Tile.EXIT) {
+                        System.out.print(GREEN + t.getSymbol() + RESET);
+                    } else {
+                        System.out.print(t.getSymbol());
+                    }
+                }
             }
             System.out.println();
         }
