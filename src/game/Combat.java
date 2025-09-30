@@ -26,9 +26,9 @@ public class Combat {
 
             // If we just entered the player's turn (i.e., enemy acted last), tick buffs and regen SP now
             if (playerTurn && !previousPlayerTurn) {
-                // Tick buffs for both at start of player's turn (after enemy action completed)
-                
+                // Entering player's turn after enemy acted: tick buffs for both and regen SP
                 e.tickBuffs();
+                p.tickBuffs();
                 // Combat SP regen at start of player's turn: 3 SP
                 p.regenSp(3);
             }
@@ -114,8 +114,8 @@ public class Combat {
             } else {
                 e.takeTurn(p);
                 actionTaken = true;
-                p.regenSp(3);
-                p.tickBuffs();
+                // Tick buffs for enemy after it acted so duration decreases properly
+                e.tickBuffs();
             }
             // After action, check for death and revival
             if (!p.getAlive()) {

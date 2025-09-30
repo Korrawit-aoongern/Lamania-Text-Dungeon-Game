@@ -82,7 +82,10 @@ public class Player extends Character {
         expToLevel += 10;
         System.out.println("LEVEL UP! Now level " + level);
         atk += 2;
-        hp += 10;
+        // properly increase max HP and heal to full of the new max
+        int newMax = getMaxHp() + 10;
+        setMaxHp(newMax);
+        setHp(newMax);
     }
     @Override
     public void setDamageTakenModifier(double modifier) {
