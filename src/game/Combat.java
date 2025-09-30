@@ -24,7 +24,8 @@ public class Combat {
         while (p.getAlive() && e.getAlive()) {
             boolean actionTaken = false;
 
-            // If we just entered the player's turn (i.e., enemy acted last), tick buffs and regen SP now
+            // If we just entered the player's turn (i.e., enemy acted last), tick buffs and
+            // regen SP now
             if (playerTurn && !previousPlayerTurn) {
                 // Entering player's turn after enemy acted: tick buffs for both and regen SP
                 e.tickBuffs();
@@ -33,7 +34,7 @@ public class Combat {
                 p.regenSp(3);
             }
             if (playerTurn) {
-                
+
                 System.out.println("\nYour turn! (HP: " + p.getHp() + ")");
                 System.out.println("1. Attack  2. Guard  3. Use Skill  4. Use Item 5. Flee");
                 String choice = sc.nextLine().trim();
@@ -44,8 +45,14 @@ public class Combat {
                 }
 
                 switch (choice) {
-                    case "1" -> { p.basicAttack(e); actionTaken = true; }
-                    case "2" -> { p.guard(); actionTaken = true; }
+                    case "1" -> {
+                        p.basicAttack(e);
+                        actionTaken = true;
+                    }
+                    case "2" -> {
+                        p.guard();
+                        actionTaken = true;
+                    }
                     case "3" -> {
                         // list skills
                         System.out.println("Choose skill:");
@@ -56,7 +63,10 @@ public class Combat {
                         System.out.println((p.getSkills().size() + 1) + ". Cancel");
                         String in = sc.nextLine().trim();
                         int idx = -1;
-                        try { idx = Integer.parseInt(in) - 1; } catch (Exception ignored) {}
+                        try {
+                            idx = Integer.parseInt(in) - 1;
+                        } catch (Exception ignored) {
+                        }
                         if (idx == p.getSkills().size()) {
                             // cancel
                             System.out.println("Skill selection cancelled.");
@@ -71,7 +81,8 @@ public class Combat {
                             } else {
                                 System.out.println("Not enough SP!");
                             }
-                        } else System.out.println("Invalid skill.");
+                        } else
+                            System.out.println("Invalid skill.");
                     }
                     case "4" -> {
                         // list items
@@ -84,7 +95,10 @@ public class Combat {
                         System.out.println((items.size() + 1) + ". Cancel");
                         String in = sc.nextLine().trim();
                         int idx = -1;
-                        try { idx = Integer.parseInt(in) - 1; } catch (Exception ignored) {}
+                        try {
+                            idx = Integer.parseInt(in) - 1;
+                        } catch (Exception ignored) {
+                        }
                         if (idx == items.size()) {
                             System.out.println("Item selection cancelled.");
                             continue; // don't consume turn
@@ -93,7 +107,8 @@ public class Combat {
                             ItemStack st = items.get(idx);
                             // use via inventory helper so removal is consistent
                             boolean used = inv.useItem(st.getItem().getName(), p, sc);
-                            if (used) actionTaken = true;
+                            if (used)
+                                actionTaken = true;
                         } else {
                             System.out.println("Invalid item.");
                             continue; // invalid selection shouldn't consume turn
@@ -129,7 +144,8 @@ public class Combat {
                 }
             }
 
-            if (!e.getAlive()) break;
+            if (!e.getAlive())
+                break;
 
             if (actionTaken) {
                 playerTurn = !playerTurn;
@@ -142,8 +158,8 @@ public class Combat {
         if (p.getAlive()) {
             System.out.println("You defeated " + e.getName() + "!");
             p.gainExp(10);
-                System.out.println("Checking for loot...");
-                addLoot(inv, rand);
+            System.out.println("Checking for loot...");
+            addLoot(inv, rand);
         } else {
             System.out.println("You were slain by " + e.getName() + "...");
         }
@@ -153,7 +169,7 @@ public class Combat {
         ItemStack chalice = inv.find("Holy Chalice");
         if (chalice != null && chalice.getCount() > 0) {
             chalice.remove(1);
-            int reviveHp = (int)Math.round(p.getMaxHp() * 0.8);
+            int reviveHp = (int) Math.round(p.getMaxHp() * 0.8);
             p.setHp(reviveHp);
             System.out.println("The Holy Chalice revives you with " + reviveHp + " HP!");
             return true;
@@ -177,7 +193,7 @@ public class Combat {
             "Downward Slash Scroll","Lunge Forward Scroll","Tornado Blade Scroll","Flame Strike Scroll",
             "Water Soothing Scroll","Holy Blessing Scroll","Thunder Strike Scroll","Plague Split Scroll",
             "Poison Infuse Scroll","Triple Shadow Step Scroll","Heaven's Fall Scroll","Smite Stomp Scroll",
-            "Holy Barrier Scroll","Astral Blade Scroll","Astral Fury Scroll"
+            "Holy Barrier Scroll","Astral Blade Scroll","Astral Fury Scroll","Excalibur"
         };
         for (String sname : scrolls) {
             if (rand.nextInt(10000) < 100) {
@@ -209,6 +225,7 @@ public class Combat {
         // rare items
         if (rand.nextInt(10000) < 40) { inv.addItem(Potion.supremePotion(), 1); drops.add("Supreme HP Elixir"); }
         if (rand.nextInt(10000) < 10) { inv.addItem(new HolyChalice(), 1); drops.add("Holy Chalice"); }
+        if (rand.nextInt(10000) < 1) { inv.addItem(new Blade("Excalibur", 300, 150), 1); drops.add("Blade: Excalibur"); }
 
         if (drops.isEmpty()) {
             System.out.println("Loot: none");
