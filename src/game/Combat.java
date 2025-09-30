@@ -20,18 +20,15 @@ public class Combat {
 
         Inventory inv = p.getInventory();
 
-        boolean previousPlayerTurn = playerTurn; // used to detect entering player's turn
+        boolean firstLoop = true;
         while (p.getAlive() && e.getAlive()) {
             boolean actionTaken = false;
 
-            // If we just entered the player's turn (i.e., enemy acted last), tick buffs and regen SP now
-            if (playerTurn && !previousPlayerTurn) {
-                // Entering player's turn after enemy acted: tick buffs for both and regen SP
-                e.tickBuffs();
-                p.tickBuffs();
-                // Combat SP regen at start of player's turn: 3 SP
+            // On the very first iteration, if it's the player's turn, apply SP regen now
+            if (firstLoop && playerTurn) {
                 p.regenSp(3);
             }
+            firstLoop = false;
             if (playerTurn) {
                 
                 System.out.println("\nYour turn! (HP: " + p.getHp() + ")");
@@ -40,6 +37,10 @@ public class Combat {
 
                 if (choice.equalsIgnoreCase("stats")) {
                     p.printStats();
+                    continue; // don't consume turn
+                }
+                if (choice.equalsIgnoreCase("estats") || choice.equalsIgnoreCase("e-stats")) {
+                    printEnemyStats(e);
                     continue; // don't consume turn
                 }
 
@@ -114,8 +115,6 @@ public class Combat {
             } else {
                 e.takeTurn(p);
                 actionTaken = true;
-                // Tick buffs for enemy after it acted so duration decreases properly
-                e.tickBuffs();
             }
             // After action, check for death and revival
             if (!p.getAlive()) {
@@ -132,16 +131,25 @@ public class Combat {
             if (!e.getAlive()) break;
 
             if (actionTaken) {
+                // toggle to next actor
                 playerTurn = !playerTurn;
+                // Tick buffs at the end of a full round (i.e., when we return to the player's turn).
+                // This means each side's buffs are decremented once per round and remain active through
+                // the opponent's action. When we've toggled back into the player's turn, the round ended.
+                if (playerTurn) {
+                    p.tickBuffs();
+                    e.tickBuffs();
+                    // We've just entered the player's turn, regen SP now
+                    p.regenSp(3);
+                }
             }
 
-            // update previousPlayerTurn marker for next iteration
-            previousPlayerTurn = playerTurn;
+            // continue looping; next iteration will tick the appropriate actor's buffs
         }
 
         if (p.getAlive()) {
             System.out.println("You defeated " + e.getName() + "!");
-            p.gainExp(10);
+            p.gainExp(100);
                 System.out.println("Checking for loot...");
                 addLoot(inv, rand);
         } else {
@@ -215,5 +223,17 @@ public class Combat {
         } else {
             for (String d : drops) System.out.println("Loot: " + d);
         }
+    }
+
+    private static void printEnemyStats(Enemy e) {
+        System.out.println("--- Enemy Stats ---");
+        System.out.println("Name: " + e.getName() + "  Level: " + e.getLevel());
+        System.out.println("HP: " + e.getHp() + "/" + e.getMaxHp() + "  SP: " + e.getSp() + "/" + e.getMaxSp());
+        System.out.println("ATK: " + e.getAtk() + "  DEF: " + e.getDef() + "  MAG: " + e.getMag() + "  PEN: " + e.getPen());
+        System.out.println("Active buffs/debuffs:");
+        for (var b : e.getBuffManager().getActiveBuffs()) {
+            System.out.println("  - " + b.getName() + " (" + b.getDuration() + " turns)");
+        }
+        System.out.println("-------------------");
     }
 }

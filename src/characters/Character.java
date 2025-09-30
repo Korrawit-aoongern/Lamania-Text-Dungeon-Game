@@ -86,6 +86,8 @@ public abstract class Character {
     }
 
     public void applyBuff(Buff buff) { buffManager.addBuff(this, buff); }
+    // Apply with source identifier (used for stacking rules)
+    public void applyBuff(Buff buff, String source) { buff.setSource(source); buffManager.addBuff(this, buff); }
     public void tickBuffs() { buffManager.tick(this); }
 
     //stunned status
@@ -106,6 +108,7 @@ public abstract class Character {
     public int getMaxSp() { return maxSp; }
     public void setMaxSp(int ms) { this.maxSp = ms; if (sp > maxSp) sp = maxSp; }
     public void setSp(int s) { this.sp = Math.min(s, maxSp); }
+    
 
     // Temporary stat modification helpers used by Buffs
     public void modifyAtk(int delta) { this.atk += delta; }

@@ -15,7 +15,7 @@ public class TornadoBlade extends PhysicalSkill {
             target.takeDamage(dmg, attackerPen);
             total += dmg;
         }
-        user.applyBuff(new StunDebuff(2));
+    user.applyBuff(new StunDebuff(2), "tornado_blade");
         System.out.println(user.getName() + " summons Tornado Blade hitting 10 times for total " + total + " damage! (Cannot act 2 turns)");
         incrementUse();
     }
