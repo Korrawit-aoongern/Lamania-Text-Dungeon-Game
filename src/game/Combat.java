@@ -10,6 +10,7 @@ import src.items.Potion;
 import src.items.HolyChalice;
 import src.items.Inventory;
 import src.items.UnholyRelic;
+import src.items.Blade;
 import src.items.CleansingCloth;
 import src.items.ItemStack;
 
@@ -25,12 +26,6 @@ public class Combat {
             boolean actionTaken = false;
      // If we just entered the player's turn (i.e., enemy acted last), tick buffs and
             // regen SP now
-            if (playerTurn && !previousPlayerTurn) {
-                // Entering player's turn after enemy acted: tick buffs for both and regen SP
-                e.tickBuffs();
-                p.tickBuffs();
-                // Combat SP regen at start of player's turn: 3 SP
-
             // On the very first iteration, if it's the player's turn, apply SP regen now
             if (firstLoop && playerTurn) {
                 p.regenSp(3);
