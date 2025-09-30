@@ -32,7 +32,17 @@ public class Game {
             System.out.println("Q to quit");
             String dir = sc.nextLine().trim().toUpperCase();
 
-            if (dir.equals("Q")) break;
+            if (dir.equals("Q")) {
+                System.out.println("Are you sure you want to quit? (Y/N)");
+                String confirm = sc.nextLine().trim().toUpperCase();
+                if (confirm.equals("Y") || confirm.equals("YES")) {
+                    System.out.println("Quitting game. Goodbye!");
+                    break;
+                } else {
+                    System.out.println("Quit cancelled.");
+                    continue;
+                }
+            }
             if (dir.equalsIgnoreCase("STATS")) {
                 player.printStats();
                 continue;
