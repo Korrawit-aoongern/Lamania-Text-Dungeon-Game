@@ -128,8 +128,13 @@ public abstract class Character {
     public int getMaxSp() { return maxSp; }
     public void setMaxSp(int ms) { this.maxSp = ms; if (sp > maxSp) sp = maxSp; }
     public void setSp(int s) { this.sp = Math.min(s, maxSp); }
+    public void setAtk(int a) { this.atk = a; }
+    public void setPen(int p) { this.pen = p; }
+    public void setMag(int m) { this.mag = m; }
+    public int getExp() { return exp; }
+    public void addExp(int amount) { this.exp += amount; }
+    public void setLevel(int lvl) { this.level = lvl; }
     
-
     // Temporary stat modification helpers used by Buffs
     public void modifyAtk(int delta) { this.atk += delta; }
     public void modifyDef(int delta) { this.def += delta; }
