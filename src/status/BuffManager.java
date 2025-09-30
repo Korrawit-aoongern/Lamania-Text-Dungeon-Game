@@ -9,14 +9,33 @@ public class BuffManager {
     private List<Buff> activeBuffs = new ArrayList<>();
 
     public void addBuff(Character target, Buff buff) {
-        // remove if same buff exists (refresh)
-        for (Buff b : activeBuffs) {
+        // Adjust 1-turn buffs to 2 turns unless explicitly from 'guard'
+        if (buff.getDuration() == 1 && (buff.getSource() == null || !buff.getSource().equalsIgnoreCase("guard"))) {
+            buff.setDuration(2);
+        }
+
+        // stacking rules: allow multiple buffs of same name only if source differs
+        Iterator<Buff> it = activeBuffs.iterator();
+        while (it.hasNext()) {
+            Buff b = it.next();
             if (b.getName().equals(buff.getName())) {
-                b.remove(target);
-                activeBuffs.remove(b);
-                break;
+                // Determine if they're from the same source.
+                String s1 = b.getSource();
+                String s2 = buff.getSource();
+                boolean sameSource;
+                if (s1 == null && s2 == null) sameSource = true; // both unspecified -> treat as same skill/source
+                else if (s1 != null && s1.equals(s2)) sameSource = true;
+                else sameSource = false;
+
+                // if same source, refresh/replace; if different source, allow stacking
+                if (sameSource) {
+                    b.remove(target);
+                    it.remove();
+                    break;
+                }
             }
         }
+
         activeBuffs.add(buff);
         buff.apply(target);
     }

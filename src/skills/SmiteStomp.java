@@ -11,7 +11,7 @@ public class SmiteStomp extends MagicalSkill {
         int attackerPen = user.getPen();
         int dmg = calcDamage(user, 100);
         target.takeDamage(dmg, attackerPen);
-        target.applyBuff(new DamageTakenUpDebuff(25, 1));
+    target.applyBuff(new DamageTakenUpDebuff(25, 1), "smite_stomp");
         System.out.println(user.getName() + " stomps with Smite Shockwave for " + dmg + " dmg! Enemy takes +25% dmg next turn.");
         incrementUse();
     }

@@ -14,7 +14,7 @@ public class TripleShadowStep extends PhysicalSkill {
         target.takeDamage(d, attackerPen);
         target.takeDamage(d, attackerPen);
         System.out.println(user.getName() + " slices swiftly with Triple Shadow Step, each hit " + d + " dmg ! DEF increased 10% for 1 turn.");
-        user.applyBuff(new Defbuff(1, 10));
+    user.applyBuff(new Defbuff(1, 10), "triple_shadow_step");
         incrementUse();
     }
 }

@@ -8,7 +8,7 @@ public class HolyBarrier extends MagicalSkill {
 
     @Override
     public void use(Character user, Character target) {
-        user.applyBuff(new ImmunityBuff(1));
+    user.applyBuff(new ImmunityBuff(1), "holy_barrier");
         System.out.println(user.getName() + " summons Holy Barrier! Damage nullified for 1 turn.");
         incrementUse();
     }
