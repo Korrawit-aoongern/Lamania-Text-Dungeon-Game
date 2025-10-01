@@ -5,6 +5,7 @@ import src.items.Inventory;
 import src.items.Potion;
 import src.skills.HolyBlessing;
 import src.skills.PlagueSplit;
+import src.skills.PoisonInfuse;
 import src.skills.SingleSlash;
 import src.skills.WaterSoothing;
 
@@ -23,6 +24,7 @@ public class Player extends Character {
         skills.add(new PlagueSplit());
         skills.add(new WaterSoothing());
         skills.add(new HolyBlessing());
+        skills.add(new PoisonInfuse());
         // starting items (optional)
         inventory.addItem(Potion.smallPotion(), 1);
     }

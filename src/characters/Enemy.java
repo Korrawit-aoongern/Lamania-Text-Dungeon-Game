@@ -58,8 +58,9 @@ public class Enemy extends Character {
 
         if (roll < baseAttackChance) {
             // Attack
+            int atkDamage = (int)Math.round(atk * 0.2);
             System.out.println(getName() + " attacks!");
-            int dealt = opponent.takeDamage(atk, pen, DamageType.PHYSICAL);
+            int dealt = opponent.takeDamage(atkDamage, pen, DamageType.PURE);
             if (dealt == 0) zeroDamageStreak++; else zeroDamageStreak = 0;
             lastSkillUsedIndex = null; // reset skill repetition when doing a basic attack
         } else if (roll < baseAttackChance + baseGuardChance) {

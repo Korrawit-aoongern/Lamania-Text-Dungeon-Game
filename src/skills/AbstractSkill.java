@@ -61,7 +61,9 @@ public abstract class AbstractSkill implements Skill {
      */
     protected void invokeOnHitEffects(Character user, Character target) {
         if (user == null || target == null) return;
-        for (Buff b : user.getBuffManager().getActiveBuffs()) {
+        // iterate over a snapshot copy so buffs can safely remove themselves during onHit
+        java.util.List<Buff> snapshot = new java.util.ArrayList<>(user.getBuffManager().getActiveBuffs());
+        for (Buff b : snapshot) {
             if (b instanceof PoisonWeaponBuff) {
                 ((PoisonWeaponBuff)b).onHit(user, target);
             }
