@@ -15,6 +15,6 @@ public class KingSlime extends Enemy {
         } catch (Exception ignored) {}
         this.role = "boss";
         this.skillPriorityBias = 2.0;
-        setExpReward(45);
+    setExpReward(90);
     }
 }

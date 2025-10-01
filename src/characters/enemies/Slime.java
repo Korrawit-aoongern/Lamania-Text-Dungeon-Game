@@ -11,6 +11,6 @@ public class Slime extends Enemy {
         try { addSkill(new src.skills.SlimeSplit()); } catch (Exception ignored) {}
         this.role = "mage";
         this.skillPriorityBias = 1.2;
-        setExpReward(14);
+    setExpReward(28);
     }
 }

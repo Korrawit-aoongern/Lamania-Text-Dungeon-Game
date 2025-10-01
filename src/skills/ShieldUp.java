@@ -11,4 +11,7 @@ public class ShieldUp extends AbstractSkill {
         user.applyBuff(new Defbuff(1, 50), "shield_up");
         System.out.println(user.getName() + " uses Shield Up, increasing DEF by 50% for 1 turn.");
     }
+
+    @Override
+    protected boolean isBuffSkill() { return true; }
 }

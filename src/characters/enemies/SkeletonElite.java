@@ -14,6 +14,6 @@ public class SkeletonElite extends Enemy {
         } catch (Exception ignored) {}
         this.role = "warrior";
         this.skillPriorityBias = 1.4;
-        setExpReward(60);
+    setExpReward(120);
     }
 }

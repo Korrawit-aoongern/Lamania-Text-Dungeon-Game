@@ -13,6 +13,6 @@ public class SkeletonMage extends Enemy {
         } catch (Exception ignored) {}
         this.role = "mage";
         this.skillPriorityBias = 1.6;
-        setExpReward(32);
+    setExpReward(64);
     }
 }

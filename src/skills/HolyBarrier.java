@@ -12,4 +12,7 @@ public class HolyBarrier extends MagicalSkill {
         user.applyBuff(new ImmunityBuff(1), "holy_barrier");
         incrementUse();
     }
+
+    @Override
+    protected boolean isBuffSkill() { return true; }
 }

@@ -9,6 +9,6 @@ public class GoblinWarrior extends Enemy {
         try { addSkill(new src.skills.DoubleSlash()); } catch (Exception ignored) {}
         this.role = "warrior";
         this.skillPriorityBias = 1.0;
-        setExpReward(20);
+    setExpReward(40);
     }
 }

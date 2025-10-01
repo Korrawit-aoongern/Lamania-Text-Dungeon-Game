@@ -12,8 +12,10 @@ public class DoubleSlash extends PhysicalSkill {
         int dmg2 = calcDamage(user, 30);
 
         System.out.println(user.getName() + " uses Double Slash!");
-        target.takeDamage(dmg1, attackerPen, src.characters.DamageType.PHYSICAL);
-        target.takeDamage(dmg2, attackerPen, src.characters.DamageType.PHYSICAL);
+    target.takeDamage(dmg1, attackerPen, src.characters.DamageType.PHYSICAL);
+    invokeOnHitEffects(user, target);
+    target.takeDamage(dmg2, attackerPen, src.characters.DamageType.PHYSICAL);
+    invokeOnHitEffects(user, target);
         incrementUse();
     }
 }

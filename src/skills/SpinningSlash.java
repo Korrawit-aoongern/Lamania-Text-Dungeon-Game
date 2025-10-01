@@ -11,7 +11,8 @@ public class SpinningSlash extends PhysicalSkill {
         int dmg = calcDamage(user, 65);
 
         System.out.println(user.getName() + " spins 360° with Spinning Slash!");
-        target.takeDamage(dmg, attackerPen, src.characters.DamageType.PHYSICAL);
+    target.takeDamage(dmg, attackerPen, src.characters.DamageType.PHYSICAL);
+    invokeOnHitEffects(user, target);
         incrementUse();
     }
 }

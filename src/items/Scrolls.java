@@ -78,5 +78,9 @@ public class Scrolls {
     public static Scroll astralFury() {
         return new Scroll("Astral Fury Scroll", new AstralFury());
     }
+
+    public static Scroll heal() {
+        return new Scroll("Heal Scroll", new src.skills.Heal());
+    }
 }
 

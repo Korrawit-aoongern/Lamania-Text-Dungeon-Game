@@ -241,6 +241,7 @@ public class Combat {
             "Water Soothing Scroll","Holy Blessing Scroll","Thunder Strike Scroll","Plague Split Scroll",
             "Poison Infuse Scroll","Triple Shadow Step Scroll","Heaven's Fall Scroll","Smite Stomp Scroll",
             "Holy Barrier Scroll","Astral Blade Scroll","Astral Fury Scroll"
+            ,"Heal Scroll"
         };
         for (String sname : scrolls) {
             if (rand.nextInt(10000) < 100) {
@@ -265,6 +266,7 @@ public class Combat {
                     case "Holy Barrier Scroll" -> { inv.addItem(Scrolls.holyBarrier(), 1); drops.add("Holy Barrier Scroll"); }
                     case "Astral Blade Scroll" -> { inv.addItem(Scrolls.astralBlade(), 1); drops.add("Astral Blade Scroll"); }
                     case "Astral Fury Scroll" -> { inv.addItem(Scrolls.astralFury(), 1); drops.add("Astral Fury Scroll"); }
+                    case "Heal Scroll" -> { inv.addItem(Scrolls.heal(), 1); drops.add("Heal Scroll"); }
                 }
             }
         }

@@ -12,4 +12,7 @@ public class PlagueSplit extends MagicalSkill {
         target.applyBuff(new DefDebuff(35, 3), "plague_split");
         incrementUse();
     }
+
+    @Override
+    protected boolean isBuffSkill() { return true; }
 }

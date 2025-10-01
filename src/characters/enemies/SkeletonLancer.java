@@ -13,6 +13,6 @@ public class SkeletonLancer extends Enemy {
         } catch (Exception ignored) {}
         this.role = "warrior";
         this.skillPriorityBias = 1.0;
-        setExpReward(28);
+    setExpReward(56);
     }
 }

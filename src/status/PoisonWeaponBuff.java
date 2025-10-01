@@ -29,12 +29,17 @@ public class PoisonWeaponBuff extends Buff {
         int poisonDmg = (int)(user.getMag() * (percentMag / 100.0));
         System.out.println("Poison lash deals " + poisonDmg + " extra damage!");
     target.takeDamage(poisonDmg, 0, src.characters.DamageType.PURE);
-        target.getBuffManager().addBuff(target, new PoisonDebuff(poisonDmg, dotDuration));
+        // Add a Poison debuff with correct (duration, damage) ordering
+        target.getBuffManager().addBuff(target, new PoisonDebuff(dotDuration, poisonDmg));
 
         remainingUses--;
         if (remainingUses <= 0) {
-            duration = 0; // expire
+            // cleanly remove this buff immediately from the user's active buffs
+            duration = 0; // mark expired
             remove(user);
+            try {
+                user.getBuffManager().getActiveBuffs().remove(this);
+            } catch (Exception ignored) {}
         }
     }
 }

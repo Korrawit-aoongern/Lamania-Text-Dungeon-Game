@@ -10,6 +10,6 @@ public class GoblinMage extends Enemy {
         try { addSkill(new src.skills.MagicBolt()); } catch (Exception ignored) {}
         this.role = "mage";
         this.skillPriorityBias = 1.8; // much more likely to use skills
-        setExpReward(22);
+    setExpReward(44);
     }
 }

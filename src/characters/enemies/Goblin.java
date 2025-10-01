@@ -8,6 +8,6 @@ public class Goblin extends Enemy {
         // Skills: only Single Slash (already added by base)
         this.role = "grunt";
         this.skillPriorityBias = 0.8;
-        setExpReward(12);
+    setExpReward(24);
     }
 }

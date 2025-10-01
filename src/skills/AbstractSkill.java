@@ -1,6 +1,8 @@
 package src.skills;
 
 import src.characters.Character;
+import src.status.Buff;
+import src.status.PoisonWeaponBuff;
 
 public abstract class AbstractSkill implements Skill {
     protected String name;
@@ -25,6 +27,11 @@ public abstract class AbstractSkill implements Skill {
         if (useCount >= 25) extraCost = 30;
         else if (useCount >= 15) extraCost = 20;
         else if (useCount >= 5)  extraCost = 10;
+        // For buff-only skills, mastery should reduce SP cost (they don't scale with damage multiplier the same way)
+        if (isBuffSkill()) {
+            int reduced = baseCost - extraCost;
+            return Math.max(1, reduced);
+        }
         return baseCost + extraCost;
     }
 
@@ -38,6 +45,27 @@ public abstract class AbstractSkill implements Skill {
 
     protected void incrementUse() {
         useCount++;
+    }
+
+    /**
+     * Override in skills that are buff-only (apply buffs/debuffs or heal) so mastery
+     * reduces SP cost instead of increasing it. Default is false.
+     */
+    protected boolean isBuffSkill() {
+        return false;
+    }
+
+    /**
+     * Invoke on-hit effects from any active buffs on the user (e.g., PoisonWeaponBuff).
+     * Called by physical skills after they deal damage so follow-up effects can apply.
+     */
+    protected void invokeOnHitEffects(Character user, Character target) {
+        if (user == null || target == null) return;
+        for (Buff b : user.getBuffManager().getActiveBuffs()) {
+            if (b instanceof PoisonWeaponBuff) {
+                ((PoisonWeaponBuff)b).onHit(user, target);
+            }
+        }
     }
 
     @Override

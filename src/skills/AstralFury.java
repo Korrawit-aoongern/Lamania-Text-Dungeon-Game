@@ -20,4 +20,7 @@ public class AstralFury extends MagicalSkill {
         user.applyBuff(new PenBuff(3, bonus), "astral_fury");
         incrementUse();
     }
+
+    @Override
+    protected boolean isBuffSkill() { return true; }
 }

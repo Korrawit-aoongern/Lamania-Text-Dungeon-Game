@@ -1,13 +1,12 @@
 package src.characters;
 
 
+import src.items.Inventory;
+import src.items.Potion;
+import src.skills.HolyBlessing;
 import src.skills.PlagueSplit;
 import src.skills.SingleSlash;
 import src.skills.WaterSoothing;
-import src.skills.HolyBlessing;
-import src.items.Blade;
-import src.items.Inventory;
-import src.items.Potion;
 
 public class Player extends Character {
     private int expToLevel;
@@ -111,8 +110,8 @@ public class Player extends Character {
 
     public void basicAttack(Character target) {
         int dmg = (int)Math.round(atk * 0.2);
-        target.takeDamage(dmg, pen, src.characters.DamageType.PHYSICAL);
         System.out.println(getName() + " attacks!");
+        target.takeDamage(dmg, pen, src.characters.DamageType.PURE);
     }
 
     public void guard() {

@@ -15,7 +15,7 @@ public class DemonKing extends Enemy {
         } catch (Exception ignored) {}
         this.role = "boss";
         this.skillPriorityBias = 2.5;
-        setExpReward(500);
+    setExpReward(1000);
     }
 
     @Override

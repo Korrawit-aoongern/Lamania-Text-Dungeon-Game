@@ -12,7 +12,8 @@ public class SingleSlash extends PhysicalSkill {
         int attackerPen = user.getPen(); // skill flatPen = 0 here
         System.out.println(user.getName() + " uses Single Slash!");
         target.applyBuff(new StunDebuff(2), "heavens_fall");
-        target.takeDamage(dmg, attackerPen, src.characters.DamageType.PHYSICAL);
+    target.takeDamage(dmg, attackerPen, src.characters.DamageType.PHYSICAL);
+    invokeOnHitEffects(user, target);
         incrementUse();
     }
 }

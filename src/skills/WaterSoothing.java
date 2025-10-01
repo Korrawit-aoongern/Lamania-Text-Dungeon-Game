@@ -14,4 +14,7 @@ public class WaterSoothing extends MagicalSkill {
         user.applyBuff(new MagBuff(2, 25), "water_soothing");user.heal(heal);
         incrementUse();
     }
+
+    @Override
+    protected boolean isBuffSkill() { return true; }
 }
