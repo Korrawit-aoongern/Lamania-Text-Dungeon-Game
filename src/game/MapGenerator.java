@@ -26,6 +26,10 @@ public class MapGenerator {
         this.revealHeight = height;
     }
 
+    // Expose current reveal window size for external tools/menus
+    public int getRevealWidth() { return this.revealWidth; }
+    public int getRevealHeight() { return this.revealHeight; }
+
     public enum Mode { BSP, CAVE }
 
     public MapGenerator() { this(System.currentTimeMillis(), Mode.BSP); }
@@ -380,5 +384,25 @@ public class MapGenerator {
             placed++;
         }
         exitsPlaced = placed;
+    }
+
+    /**
+     * Find the nearest EXIT tile to the given world coordinates (px,py).
+     * Returns {x,y} or null if no exit exists.
+     */
+    public int[] findNearestExit(int px, int py) {
+        int bestDist = Integer.MAX_VALUE;
+        int[] best = null;
+        for (var e : tiles.entrySet()) {
+            if (e.getValue() == Tile.EXIT) {
+                String[] parts = e.getKey().split(",");
+                int x = Integer.parseInt(parts[0]);
+                int y = Integer.parseInt(parts[1]);
+                int dist = Math.abs(x - px) + Math.abs(y - py);
+                if (dist == 0) continue; // skip on-top
+                if (dist < bestDist) { bestDist = dist; best = new int[]{x, y}; }
+            }
+        }
+        return best;
     }
 }

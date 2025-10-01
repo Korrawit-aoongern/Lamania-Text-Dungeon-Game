@@ -54,33 +54,94 @@ public class Game {
             // Hack / dev cheat menu
             if (dir.equalsIgnoreCase("HACKDEV")) {
                 System.out.println("--- HACKDEV MENU ---");
-                System.out.println("1. Change map reveal size (width height)");
-                System.out.println("2. Change steps per move (integer)");
-                System.out.println("3. Toggle Noclip (current: " + (noclip ? "ON" : "OFF") + ")");
-                System.out.println("4. Cancel");
+                System.out.println("1. Toggle One-hit kill (current: " + (CheatManager.oneHitKill ? "ON" : "OFF") + ")");
+                System.out.println("2. Toggle Immunity (player) (cheat - true invulnerability) (current: " + (CheatManager.immunity ? "ON" : "OFF") + ")");
+                System.out.println("3. Warp to nearest Exit (not on top)");
+                System.out.println("4. Fight Demon King");
+                System.out.println("5. All stats 999");
+                System.out.println("6. All stats self-set");
+                System.out.println("7. Get all items (1 quantity)");
+                System.out.println("8. Get all potions (99)");
+                System.out.println("9. Toggle No Skill Limit (current: " + (CheatManager.noSkillLimit ? "ON" : "OFF") + ")");
+                System.out.println("10. Set level");
+                System.out.println("11. Set reveal window size (current: " + map.getRevealWidth() + "x" + map.getRevealHeight() + ")");
+                System.out.println("12. Set steps per move (current: " + stepsPerMove + ")");
+                System.out.println("13. Toggle noclip (current: " + (noclip ? "ON" : "OFF") + ")");
+                System.out.println("14. Fight random enemy (same level)");
+                System.out.println("15. Fight random enemy (your level -10)");
+                System.out.println("16. Fight random enemy (your level +10)");
+                System.out.println("17. Kill yourself");
+                System.out.println("0. Cancel");
                 String choice = sc.nextLine().trim();
-                if (choice.equals("1")) {
-                    System.out.println("Enter width and height (e.g. 30 12):");
-                    String[] parts = sc.nextLine().trim().split("\\s+");
-                    try {
-                        int w = Integer.parseInt(parts[0]);
-                        int h = Integer.parseInt(parts[1]);
-                        map.setRevealSize(w, h);
-                        System.out.println("Reveal size set to " + w + "x" + h);
-                    } catch (Exception ex) { System.out.println("Invalid input."); }
-                } else if (choice.equals("2")) {
-                    System.out.println("Enter steps per move (e.g. 1):");
-                    try {
-                        int s = Integer.parseInt(sc.nextLine().trim());
-                        if (s < 1) s = 1;
-                        stepsPerMove = s;
-                        System.out.println("Steps per move set to " + stepsPerMove);
-                    } catch (Exception ex) { System.out.println("Invalid input."); }
-                } else if (choice.equals("3")) {
-                    noclip = !noclip;
-                    System.out.println("Noclip is now " + (noclip ? "ON" : "OFF"));
-                } else {
-                    System.out.println("Cancelled.");
+                switch (choice) {
+                    case "1" -> { CheatManager.oneHitKill = !CheatManager.oneHitKill; System.out.println("One-hit kill: " + (CheatManager.oneHitKill ? "ON" : "OFF")); }
+                    case "2" -> { CheatManager.immunity = !CheatManager.immunity; System.out.println("Cheat immunity: " + (CheatManager.immunity ? "ON" : "OFF")); }
+                    case "3" -> {
+                        int[] ex = map.findNearestExit(px, py);
+                        if (ex == null) { System.out.println("No exit found."); }
+                        else {
+                            // teleport player adjacent to exit if possible (not on top)
+                            int exx = ex[0], exy = ex[1];
+                            // try to place one tile left/right/up/down if floor
+                            int[][] cand = new int[][]{{exx-1,exy},{exx+1,exy},{exx,exy-1},{exx,exy+1}};
+                            boolean placed = false;
+                            for (int[] c : cand) {
+                                if (map.getTile(c[0], c[1]) == Tile.FLOOR) { px = c[0]; py = c[1]; placed = true; break; }
+                            }
+                            if (!placed) { px = exx; py = exy; }
+                            System.out.println("Warped near exit at (" + px + "," + py + ")");
+                        }
+                    }
+                    case "4" -> { System.out.println("Spawning Demon King..."); Combat.fight(player, new DemonKing(), sc); }
+                    case "5" -> { player.setAtk(999); player.setDef(999); player.setMag(999); player.setHp(999); player.setMaxHp(999); player.setSp(999); player.setMaxSp(999); System.out.println("All stats set to 999."); }
+                    case "6" -> {
+                        System.out.println("Enter ATK DEF MAG HP SP (space-separated):");
+                        String[] parts = sc.nextLine().trim().split("\\s+");
+                        try {
+                            int a = Integer.parseInt(parts[0]); int d = Integer.parseInt(parts[1]); int m = Integer.parseInt(parts[2]); int h = Integer.parseInt(parts[3]); int s = Integer.parseInt(parts[4]);
+                            player.setAtk(a); player.setDef(d); player.setMag(m); player.setMaxHp(h); player.setHp(h); player.setMaxSp(s); player.setSp(s);
+                            System.out.println("Stats updated.");
+                        } catch (Exception ex) { System.out.println("Invalid input."); }
+                    }
+                    case "7" -> {
+                        // add one of every item (uses Inventory.addItem list of classes)
+                        System.out.println("Adding one of each item... (may skip big equipment lists)");
+                        player.addToInventory(new src.items.HolyChalice(), 1);
+                        player.addToInventory(new src.items.CleansingCloth(), 1);
+                        player.addToInventory(new src.items.UnholyRelic(), 1);
+                        player.addToInventory(new src.items.Blade("Excalibur", 300, 150), 1);
+                        System.out.println("Selected items added.");
+                    }
+                    case "8" -> { player.addToInventory(src.items.Potion.smallPotion(), 99); player.addToInventory(src.items.Potion.mediumPotion(), 99); player.addToInventory(src.items.Potion.largePotion(), 99); player.addToInventory(src.items.Potion.supremePotion(), 99); System.out.println("Added potions."); }
+                    case "9" -> { CheatManager.noSkillLimit = !CheatManager.noSkillLimit; System.out.println("No skill limit: " + (CheatManager.noSkillLimit ? "ON" : "OFF")); }
+                    case "10" -> {
+                        System.out.println("Enter level:");
+                        try { int lvl = Integer.parseInt(sc.nextLine().trim()); player.setLevel(lvl); System.out.println("Level set to " + lvl); } catch (Exception ex) { System.out.println("Invalid input."); }
+                    }
+                    case "11" -> {
+                        System.out.println("Enter reveal width and height (e.g. 20 10):");
+                        String[] parts = sc.nextLine().trim().split("\\s+");
+                        if (parts.length >= 2) {
+                            try {
+                                int w = Integer.parseInt(parts[0]);
+                                int h = Integer.parseInt(parts[1]);
+                                map.setRevealSize(w, h);
+                                System.out.println("Reveal window set to " + w + "x" + h + ".");
+                            } catch (NumberFormatException nfe) {
+                                System.out.println("Invalid numbers.");
+                            }
+                        } else System.out.println("Cancelled.");
+                    }
+                    case "12" -> {
+                        System.out.println("Enter steps per move (integer >=1):");
+                        try { int s = Integer.parseInt(sc.nextLine().trim()); if (s < 1) s = 1; stepsPerMove = s; System.out.println("stepsPerMove set to " + stepsPerMove); } catch (Exception ex) { System.out.println("Invalid input."); }
+                    }
+                    case "13" -> { noclip = !noclip; System.out.println("noclip: " + (noclip ? "ON" : "OFF")); }
+                    case "14" -> { Enemy e = spawnEnemy(); e.scaleUpByLevels(Math.max(0, player.getLevel() - e.getLevel())); Combat.fight(player, e, sc); }
+                    case "15" -> { Enemy e = spawnEnemy(); int targetLvl = Math.max(1, player.getLevel() - 10); int levelsToAdd = Math.max(0, targetLvl - e.getLevel()); if (levelsToAdd>0) e.scaleUpByLevels(levelsToAdd); Combat.fight(player, e, sc); }
+                    case "16" -> { Enemy e = spawnEnemy(); int targetLvl = player.getLevel() + 10; int levelsToAdd = Math.max(0, targetLvl - e.getLevel()); if (levelsToAdd>0) e.scaleUpByLevels(levelsToAdd); Combat.fight(player, e, sc); }
+                    case "17" -> { System.out.println("Self-destruct initiated."); player.setHp(0); }
+                    default -> System.out.println("Cancelled.");
                 }
                 continue;
             }

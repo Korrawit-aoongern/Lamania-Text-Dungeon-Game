@@ -70,7 +70,13 @@ public class Combat {
 
                 switch (choice) {
                     case "1" -> {
+                        int prevHp = e.getHp();
                         p.basicAttack(e);
+                        // One-hit kill cheat: if the attack dealt damage, instantly kill the enemy
+                        if (CheatManager.oneHitKill && e.getHp() < prevHp && e.getAlive()) {
+                            e.setHp(0);
+                            System.out.println("Cheat: One-hit kill activated! " + e.getName() + " is instantly slain.");
+                        }
                         actionTaken = true;
                     }
                     case "2" -> {
@@ -100,7 +106,13 @@ public class Combat {
                             var skill = p.getSkills().get(idx);
                             if (p.getSp() >= skill.getCost()) {
                                 p.consumeSp(skill.getCost());
+                                int prevHp = e.getHp();
                                 skill.use(p, e);
+                                // One-hit kill cheat: if the skill dealt damage, instantly kill the enemy
+                                if (CheatManager.oneHitKill && e.getHp() < prevHp && e.getAlive()) {
+                                    e.setHp(0);
+                                    System.out.println("Cheat: One-hit kill activated! " + e.getName() + " is instantly slain.");
+                                }
                                 actionTaken = true;
                             } else {
                                 System.out.println("Not enough SP!");
@@ -249,7 +261,7 @@ public class Combat {
             ,"Heal Scroll"
         };
         for (String sname : scrolls) {
-            if (rand.nextInt(10000) < 100) {
+            if (rand.nextInt(10000) < 500) {
                 // map name to actual Scroll factory where possible
                 switch (sname) {
                     case "Single Slash Scroll" -> { inv.addItem(Scrolls.singleSlash(), 1); drops.add("Single Slash Scroll"); }
@@ -279,12 +291,12 @@ public class Combat {
         // rare items
         if (rand.nextInt(10000) < 40) { inv.addItem(Potion.supremePotion(), 1); drops.add("Supreme HP Elixir"); }
         if (rand.nextInt(10000) < 10) { inv.addItem(new HolyChalice(), 1); drops.add("Holy Chalice"); }
-        if (rand.nextInt(10000) < 10000) { inv.addItem(new Blade("Excalibur", 300, 150), 1); drops.add("Excalibur"); }
-        if (rand.nextInt(10000) < 10000) { inv.addItem(new Staff("Elder Staff", 200), 1); drops.add("Elder Staff"); }
-        if (rand.nextInt(10000) < 10000) { inv.addItem(new Helmet("Dragon Helm", 100, 50), 1); drops.add("Dragon Helm"); }
-        if (rand.nextInt(10000) < 10000) { inv.addItem(new Chestplate("Dragon Chestplate", 150, 75), 1); drops.add("Dragon Chestplate"); }
-        if (rand.nextInt(10000) < 10000) { inv.addItem(new Gauntlets("Dragon Gauntlets", 75, 25), 1); drops.add("Dragon Gauntlets"); }
-        if (rand.nextInt(10000) < 10000) { inv.addItem(new Boots("Dragon Boots", 70, 20), 1); drops.add("Dragon Boots"); }
+        if (rand.nextInt(10000) < 1) { inv.addItem(new Blade("Excalibur", 300, 150), 1); drops.add("Excalibur"); }
+        if (rand.nextInt(10000) < 10) { inv.addItem(new Staff("Elder Staff", 200), 1); drops.add("Elder Staff"); }
+        if (rand.nextInt(10000) < 100) { inv.addItem(new Helmet("Dragon Helm", 100, 50), 1); drops.add("Dragon Helm"); }
+        if (rand.nextInt(10000) < 100) { inv.addItem(new Chestplate("Dragon Chestplate", 150, 75), 1); drops.add("Dragon Chestplate"); }
+        if (rand.nextInt(10000) < 100) { inv.addItem(new Gauntlets("Dragon Gauntlets", 75, 25), 1); drops.add("Dragon Gauntlets"); }
+        if (rand.nextInt(10000) < 100) { inv.addItem(new Boots("Dragon Boots", 70, 20), 1); drops.add("Dragon Boots"); }
 
 
         if (drops.isEmpty()) {

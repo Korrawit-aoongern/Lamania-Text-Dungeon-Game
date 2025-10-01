@@ -190,6 +190,11 @@ public abstract class Character {
     // New damage-taking API that supports damage types and per-type modifiers.
     // Returns the actual damage applied after defenses/modifiers.
     public int takeDamage(int dmg, int attackerPen, DamageType type) {
+        // Global cheat immunity (instant, not a buff) — only applies to the Player
+        if (this instanceof src.characters.Player && src.game.CheatManager.immunity) {
+            System.out.println(getName() + " is invulnerable (cheat immunity)!");
+            return 0;
+        }
         if (immune) {
             System.out.println(getName() + " is immune to damage!");
             return 0;
