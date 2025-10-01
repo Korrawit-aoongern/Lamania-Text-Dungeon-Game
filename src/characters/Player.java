@@ -13,6 +13,23 @@ public class Player extends Character {
     private int expToLevel;
     private Inventory inventory = new Inventory();
     private src.items.Blade equippedBlade = null;
+    private src.items.Boots equippedBoots = null;
+    private src.items.Gauntlets equippedGauntlets = null;
+    private src.items.Helmet equippedHelmet = null;
+    private src.items.Staff equippedStaff = null;
+    private src.items.Chestplate equippedChestplate = null;
+    // Equip chestplate, applying bonuses and remembering the equipped item
+    public void equipChestplate(src.items.Chestplate chestplate) {
+        if (equippedChestplate != null) {
+            def -= equippedChestplate.getDefBonus();
+            maxHp -= equippedChestplate.getHpBonus();
+        }
+        equippedChestplate = chestplate;
+        def += chestplate.getDefBonus();
+        maxHp += chestplate.getHpBonus();
+        System.out.println(getName() + " equipped chestplate: " + chestplate.getName() + "! DEF +" + chestplate.getDefBonus() + ", HP +" + chestplate.getHpBonus());
+    }
+    
     // temporary consumable effects that last a number of movement steps
     private int unholyRelicSteps = 0;
     private int cleansingClothSteps = 0;
@@ -79,6 +96,52 @@ public class Player extends Character {
         atk += blade.getAtkBonus();
         pen += blade.getPenBonus();
         System.out.println(getName() + " equipped " + blade.getName() + "! ATK +" + blade.getAtkBonus() + ", PEN +" + blade.getPenBonus());
+    }
+
+    // Equip boots, applying bonuses and remembering the equipped item
+    public void equipBoots(src.items.Boots boots) {
+        if (equippedBoots != null) {
+            def -= equippedBoots.getDefBonus();
+            maxHp -= equippedBoots.getHpBonus();
+        }
+        equippedBoots = boots;
+        def += boots.getDefBonus();
+        maxHp += boots.getHpBonus();
+        System.out.println(getName() + " equipped boots: " + boots.getName() + "! DEF +" + boots.getDefBonus() + ", HP +" + boots.getHpBonus());
+    }
+
+    // Equip gauntlets, applying bonuses and remembering the equipped item
+    public void equipGauntlets(src.items.Gauntlets gauntlets) {
+        if (equippedGauntlets != null) {
+            def -= equippedGauntlets.getDefBonus();
+            maxHp -= equippedGauntlets.getHpBonus();
+        }
+        equippedGauntlets = gauntlets;
+        def += gauntlets.getDefBonus();
+        maxHp += gauntlets.getHpBonus();
+        System.out.println(getName() + " equipped gauntlets: " + gauntlets.getName() + "! DEF +" + gauntlets.getDefBonus() + ", HP +" + gauntlets.getHpBonus());
+    }
+
+    // Equip helmet, applying bonuses and remembering the equipped item
+    public void equipHelmet(src.items.Helmet helmet) {
+        if (equippedHelmet != null) {
+            def -= equippedHelmet.getDefBonus();
+            maxHp -= equippedHelmet.getHpBonus();
+        }
+        equippedHelmet = helmet;
+        def += helmet.getDefBonus();
+        maxHp += helmet.getHpBonus();
+        System.out.println(getName() + " equipped helmet: " + helmet.getName() + "! DEF +" + helmet.getDefBonus() + ", HP +" + helmet.getHpBonus());
+    }
+
+    // Equip staff, applying magic attack bonus and remembering the equipped item
+    public void equipStaff(src.items.Staff staff) {
+        if (equippedStaff != null) {
+            mag -= equippedStaff.getMagicAtkBonus();
+        }
+        equippedStaff = staff;
+        mag += staff.getMagicAtkBonus();
+        System.out.println(getName() + " equipped staff: " + staff.getName() + "! MAG +" + staff.getMagicAtkBonus());
     }
 
     public boolean hasExcaliburEquipped() {
