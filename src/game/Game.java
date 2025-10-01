@@ -13,19 +13,25 @@ public class Game {
     private int px, py;
     private final Random rand = new Random();
     private final Scanner sc = new Scanner(System.in);
+    // Steps per move (affects how many steps are counted per move); default 1
+    private int stepsPerMove = 1;
+    private boolean noclip = false;
 
     public Game(Player p) {
         this.player = p;
         this.map = new MapGenerator();
-        this.px = 0;
-        this.py = 0;
+        int[] spawn = this.map.findSpawn();
+        this.px = spawn[0];
+        this.py = spawn[1];
+    // MapGenerator now places directional exits relative to center spawn.
+    // We intentionally do not relocate exits away from the player here.
     }
 
     public void start() {
         System.out.println("Welcome to Dungeon Crawler!");
         int steps = 0;
         while (player.getAlive()) {
-            map.reveal(px, py);
+            map.reveal(px, py, player, noclip);
             System.out.println("\nChoose direction: W/A/S/D");
             System.out.println("stats to view stats");
             System.out.println("inv to view inventory");
@@ -43,10 +49,40 @@ public class Game {
                     continue;
                 }
             }
-            if (dir.equalsIgnoreCase("STATS")) {
-                player.printStats();
+            // Hack / dev cheat menu
+            if (dir.equalsIgnoreCase("HACKDEV")) {
+                System.out.println("--- HACKDEV MENU ---");
+                System.out.println("1. Change map reveal size (width height)");
+                System.out.println("2. Change steps per move (integer)");
+                System.out.println("3. Toggle Noclip (current: " + (noclip ? "ON" : "OFF") + ")");
+                System.out.println("4. Cancel");
+                String choice = sc.nextLine().trim();
+                if (choice.equals("1")) {
+                    System.out.println("Enter width and height (e.g. 30 12):");
+                    String[] parts = sc.nextLine().trim().split("\\s+");
+                    try {
+                        int w = Integer.parseInt(parts[0]);
+                        int h = Integer.parseInt(parts[1]);
+                        map.setRevealSize(w, h);
+                        System.out.println("Reveal size set to " + w + "x" + h);
+                    } catch (Exception ex) { System.out.println("Invalid input."); }
+                } else if (choice.equals("2")) {
+                    System.out.println("Enter steps per move (e.g. 1):");
+                    try {
+                        int s = Integer.parseInt(sc.nextLine().trim());
+                        if (s < 1) s = 1;
+                        stepsPerMove = s;
+                        System.out.println("Steps per move set to " + stepsPerMove);
+                    } catch (Exception ex) { System.out.println("Invalid input."); }
+                } else if (choice.equals("3")) {
+                    noclip = !noclip;
+                    System.out.println("Noclip is now " + (noclip ? "ON" : "OFF"));
+                } else {
+                    System.out.println("Cancelled.");
+                }
                 continue;
             }
+            
 
             if (dir.equalsIgnoreCase("INV")) {
                 // Inventory viewer + use
@@ -72,39 +108,49 @@ public class Game {
                 continue;
             }
 
-            int nx = px, ny = py;
+            // Move up to stepsPerMove tiles in the requested direction, stopping at walls.
+            int dx = 0, dy = 0;
             switch (dir) {
-                case "W" -> ny--;
-                case "S" -> ny++;
-                case "D" -> nx++;
-                case "A" -> nx--;
+                case "W" -> dy = -1;
+                case "S" -> dy = 1;
+                case "D" -> dx = 1;
+                case "A" -> dx = -1;
                 default -> { System.out.println("Invalid!"); continue; }
             }
 
-            if (map.getTile(nx, ny) == Tile.WALL) {
-                System.out.println("You bump into a wall.");
+            boolean bumped = false;
+            for (int stepIter = 0; stepIter < stepsPerMove; stepIter++) {
+                int nx2 = px + dx;
+                int ny2 = py + dy;
+                if (!noclip && map.getTile(nx2, ny2) == Tile.WALL) {
+                    if (stepIter == 0) System.out.println("You bump into a wall.");
+                    bumped = true;
+                    break;
+                }
+                // move one tile
+                px = nx2; py = ny2;
+
+                // per-sub-step effects
+                steps++;
+                player.tickConsumableSteps();
+                if (steps % 2 == 0) player.regenSp(3);
+
+                // check exit immediately
+                if (map.getTile(px, py) == Tile.EXIT) {
+                    System.out.println("🎉 You found the exit! Congratulations, you escaped the dungeon!");
+                    return;
+                }
+            }
+            if (bumped) continue;
+
+            // If noclip is enabled, disable random encounters and inform the player
+            if (noclip) {
+                // skip encounters while noclip is active
                 continue;
             }
 
-            px = nx; 
-            py = ny;
-
-            // 🔹 เช็คถ้าผู้เล่นถึงประตูทางออก
-            if (map.getTile(px, py) == Tile.EXIT) {
-                System.out.println("🎉 You found the exit! Congratulations, you escaped the dungeon!");
-                break;
-            }
-
-            // count steps and regen SP every 2 steps
-            steps++;
-            // tick consumable step counters (Unholy Relic / Cleansing Cloth)
-            player.tickConsumableSteps();
-            if (steps % 2 == 0) {
-                player.regenSp(3);
-            }
-
             // base 20% chance random encounter, modified by active consumable effects
-            double chance = 20.0;
+            double chance = 0.0;
             if (player.hasUnholyRelicActive()) chance *= 1.5; // +50%
             if (player.hasCleansingClothActive()) chance *= 0.5; // -50%
 
