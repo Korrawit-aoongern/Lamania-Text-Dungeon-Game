@@ -19,7 +19,7 @@ import src.items.Scrolls;
 import src.items.UnholyRelic;
 
 public class Combat {
-    public static void fight(Player p, Enemy e, Scanner sc) {
+    public static boolean fight(Player p, Enemy e, Scanner sc) {
         Random rand = new Random();
         boolean playerTurn = rand.nextBoolean();
 
@@ -154,7 +154,7 @@ public class Combat {
                         actionTaken = true;
                         if (rand.nextInt(100) < 50) {
                             System.out.println("You fled successfully!");
-                            return;
+                            return false;
                         } else {
                             System.out.println("Failed to flee! Lose 10% HP.");
                             p.takeDamage(p.getHp() / 10, e.getPen(), src.characters.DamageType.PHYSICAL);
@@ -173,7 +173,7 @@ public class Combat {
                         boolean fled = e.act(p, new Random());
                         if (fled) {
                             System.out.println(e.getName() + " fled the battle!");
-                            return; // end combat
+                            return false; // end combat
                         }
                         actionTaken = true;
                     }
@@ -223,8 +223,10 @@ public class Combat {
             p.gainExp(xp);
                 System.out.println("Checking for loot...");
                 addLoot(inv, rand);
+            return true;
         } else {
             System.out.println("You were slain by " + e.getName() + "...");
+            return false;
         }
     }
 

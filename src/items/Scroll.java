@@ -25,6 +25,12 @@ public class Scroll implements Item {
             return;
         }
 
+        // If noSkillLimit cheat is enabled, bypass slot checks and just add the skill
+        if (src.game.CheatManager.noSkillLimit) {
+            player.addSkill(skill);
+            System.out.println("You read the " + name + " and learn " + skill.getName() + "! (noSkillLimit bypass)");
+            return;
+        }
         if (player.getSkills().size() < player.getMaxSkillSlots()) {
             player.addSkill(skill);
             System.out.println("You read the " + name + " and learn " + skill.getName() + "!");

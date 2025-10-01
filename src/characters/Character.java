@@ -13,6 +13,8 @@ public abstract class Character {
     protected int level, hp, sp, atk, def, mag, pen, exp;
     protected int maxHp;
     protected int maxSp;
+    // Keep base (level-1) stats so we can rescale cleanly when changing level
+    protected int baseAtk, baseDef, baseMag, basePen, baseMaxHp, baseMaxSp;
     protected List<AbstractSkill> skills = new ArrayList<>();
 
     protected BuffManager buffManager = new BuffManager();
@@ -42,8 +44,35 @@ public abstract class Character {
         this.mag = mag;
         this.pen = pen;
         this.exp = 0;
+        // initialize base stats from the constructor-provided starting values
+        this.baseAtk = atk;
+        this.baseDef = def;
+        this.baseMag = mag;
+        this.basePen = pen;
+        this.baseMaxHp = this.maxHp;
+        this.baseMaxSp = this.maxSp;
         // initialize type modifiers to neutral
         for (DamageType dt : DamageType.values()) typeModifiers.put(dt, 1.0);
+    }
+
+    // Scale stats to match an explicit level using base stats and 10% per-level growth
+    public void scaleToLevel(int newLevel) {
+        if (newLevel < 1) newLevel = 1;
+        this.level = newLevel;
+        double mult = Math.pow(1.1, newLevel - 1);
+        this.atk = (int)Math.round(baseAtk * mult);
+        int newDef = (int)Math.round(baseDef * mult);
+        if (newDef == 0 && baseDef > 0) newDef = 1; // ensure at least 1 if baseDef exists
+        this.def = newDef;
+        this.mag = (int)Math.round(baseMag * mult);
+        this.pen = (int)Math.round(basePen * mult);
+        int newMaxHp = (int)Math.round(baseMaxHp * mult);
+        setMaxHp(newMaxHp);
+        int newMaxSp = (int)Math.round(baseMaxSp * mult);
+        setMaxSp(newMaxSp);
+        // refill current HP/SP to the new max
+        this.hp = this.maxHp;
+        this.sp = this.maxSp;
     }
 
     // Encapsulation (getters/setters)
@@ -226,6 +255,7 @@ public abstract class Character {
     public List<AbstractSkill> getSkills() { return skills; }
 
     public int getMaxSkillSlots() {
+        if (src.game.CheatManager.noSkillLimit) return 999;
         return 6;
     }
     public boolean hasSkill(AbstractSkill skill) {

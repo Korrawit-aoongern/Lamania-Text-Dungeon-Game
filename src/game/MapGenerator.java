@@ -405,4 +405,9 @@ public class MapGenerator {
         }
         return best;
     }
+
+    // Place an EXIT tile at the given world coordinate (x,y).
+    public void placeExitAt(int x, int y) {
+        tiles.put(x + "," + y, Tile.EXIT);
+    }
 }
