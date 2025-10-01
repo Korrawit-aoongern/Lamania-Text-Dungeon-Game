@@ -242,9 +242,6 @@ public class Game {
         // Scale enemy to the chosenLevel (scaleUpByLevels increases levels incrementally)
         int levelsToAdd = Math.max(0, chosenLevel - e.getLevel());
         if (levelsToAdd > 0) e.scaleUpByLevels(levelsToAdd);
-        // Rebalance numeric stats to be roughly in-line with the player's current power
-        // This ensures enemies of the same level are actually a comparable threat.
-        try { e.rebalanceToPlayer(player); } catch (Exception ignored) {}
         return e;
     }
 }

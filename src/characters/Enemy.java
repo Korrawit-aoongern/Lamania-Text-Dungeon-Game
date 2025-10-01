@@ -2,6 +2,7 @@ package src.characters;
 
 public class Enemy extends Character {
     private int zeroDamageStreak = 0; // consecutive turns dealing 0 damage
+    private Integer lastSkillUsedIndex = null; // prevent repeating the same skill twice
 
     public Enemy(String name, int level, int hp, int sp, int atk, int def, int mag, int pen) {
         super(name, level, hp, sp, atk, def, mag, pen);
@@ -53,6 +54,7 @@ public class Enemy extends Character {
             System.out.println(getName() + " attacks!");
             int dealt = opponent.takeDamage(atk, pen, DamageType.PHYSICAL);
             if (dealt == 0) zeroDamageStreak++; else zeroDamageStreak = 0;
+            lastSkillUsedIndex = null; // reset skill repetition when doing a basic attack
         } else if (roll < baseAttackChance + baseGuardChance) {
             // Guard
             System.out.println(getName() + " guards!");
@@ -60,6 +62,7 @@ public class Enemy extends Character {
             applyBuff(db, "guard");
             // guarding doesn't deal damage; count as 0-damage turn
             zeroDamageStreak++;
+            lastSkillUsedIndex = null;
         } else {
             // Use skill if possible
             var skills = getSkills();
@@ -69,7 +72,27 @@ public class Enemy extends Character {
                 if (skills.get(i).getCost() <= spNow) usable.add(i);
             }
             if (!usable.isEmpty()) {
-                int pick = usable.get(rand.nextInt(usable.size()));
+                // Prefer higher-cost skills but avoid repeating the same skill twice
+                // Weight choices by cost
+                int totalWeight = 0;
+                int[] weights = new int[usable.size()];
+                for (int i = 0; i < usable.size(); i++) {
+                    int idx = usable.get(i);
+                    int cost = skills.get(idx).getCost();
+                    int w = Math.max(1, cost / 10); // cost-based weight
+                    // discourage picking the last used skill
+                    if (lastSkillUsedIndex != null && lastSkillUsedIndex == idx) w = Math.max(1, w / 3);
+                    weights[i] = w;
+                    totalWeight += w;
+                }
+                int r = rand.nextInt(totalWeight);
+                int chosenIndexInUsable = 0;
+                int cum = 0;
+                for (int i = 0; i < weights.length; i++) {
+                    cum += weights[i];
+                    if (r < cum) { chosenIndexInUsable = i; break; }
+                }
+                int pick = usable.get(chosenIndexInUsable);
                 var skill = skills.get(pick);
                 int beforeHp = opponent.getHp();
                 consumeSp(skill.getCost());
@@ -77,6 +100,8 @@ public class Enemy extends Character {
                 int afterHp = opponent.getHp();
                 int dealt = Math.max(0, beforeHp - afterHp);
                 if (dealt == 0) zeroDamageStreak++; else zeroDamageStreak = 0;
+                // remember which skill was used
+                lastSkillUsedIndex = pick;
             } else {
                 // fallback to attack
                 System.out.println(getName() + " attacks!");
@@ -92,6 +117,5 @@ public class Enemy extends Character {
         }
 
         return false;
-    }
     }
 }
