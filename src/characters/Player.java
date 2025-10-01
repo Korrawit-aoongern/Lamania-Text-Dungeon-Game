@@ -111,7 +111,7 @@ public class Player extends Character {
 
     public void basicAttack(Character target) {
         int dmg = (int)Math.round(atk * 0.2);
-        target.takeDamage(dmg, pen);
+        target.takeDamage(dmg, pen, src.characters.DamageType.PHYSICAL);
         System.out.println(getName() + " attacks!");
     }
 
@@ -170,5 +170,11 @@ public class Player extends Character {
     public void setMaxHp(int newMaxHp) {
         super.setMaxHp(newMaxHp);
         System.out.println(getName() + "'s max HP changed to " + newMaxHp);
+    }
+    @Override
+    public void setMaxSp(int ms) {
+        if (ms > 500) ms = 500;
+        super.setMaxSp(ms);
+        System.out.println(getName() + "'s max SP changed to " + ms);
     }
 }

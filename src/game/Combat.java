@@ -27,11 +27,29 @@ public class Combat {
      // If we just entered the player's turn (i.e., enemy acted last), tick buffs and
             // regen SP now
             // On the very first iteration, if it's the player's turn, apply SP regen now
-            if (firstLoop && playerTurn) {
-                p.regenSp(3);
+            if (firstLoop) {
+                if (playerTurn) {
+                    int regen = (int)Math.round(3 * Math.pow(1.1, p.getLevel() - 1));
+                    regen = Math.min(50, regen);
+                    p.regenSp(regen);
+                } else {
+                    int regenE = (int)Math.round(3 * Math.pow(1.1, e.getLevel() - 1));
+                    regenE = Math.min(50, regenE);
+                    e.regenSp(regenE);
+                }
             }
             firstLoop = false;
             if (playerTurn) {
+
+                // If player is stunned, they skip their turn
+                if (p.isStunned()) {
+                    System.out.println(p.getName() + " is stunned and cannot act this turn!");
+                    actionTaken = true;
+                }
+
+                if (actionTaken) {
+                    // we will toggle turn below
+                } else {
 
                 System.out.println("\nYour turn! (HP: " + p.getHp() + ")");
                 System.out.println("1. Attack  2. Guard  3. Use Skill  4. Use Item 5. Flee");
@@ -123,20 +141,26 @@ public class Combat {
                             return;
                         } else {
                             System.out.println("Failed to flee! Lose 10% HP.");
-                            p.takeDamage(p.getHp() / 10, e.getPen());
+                            p.takeDamage(p.getHp() / 10, e.getPen(), src.characters.DamageType.PHYSICAL);
                         }
                     }
                     default -> System.out.println("Invalid.");
                 }
-            } else {
-                // If enemy is stunned, they skip their turn immediately
-                if (e.isStunned()) {
-                    System.out.println(e.getName() + " is stunned and cannot act this turn!");
-                    actionTaken = true;
-                } else {
-                    e.takeTurn(p);
-                    actionTaken = true;
                 }
+            } else {
+                    // If enemy is stunned, they skip their turn immediately
+                    if (e.isStunned()) {
+                        System.out.println(e.getName() + " is stunned and cannot act this turn!");
+                        actionTaken = true;
+                    } else {
+                        // (regen handled at round boundaries; avoid double-regening here)
+                        boolean fled = e.act(p, new Random());
+                        if (fled) {
+                            System.out.println(e.getName() + " fled the battle!");
+                            return; // end combat
+                        }
+                        actionTaken = true;
+                    }
             }
             // After action, check for death and revival
             if (!p.getAlive()) {
@@ -162,8 +186,15 @@ public class Combat {
                 if (playerTurn) {
                     p.tickBuffs();
                     e.tickBuffs();
-                    // We've just entered the player's turn, regen SP now
-                    p.regenSp(3);
+                    // We've just entered the player's turn, regen SP now (scale by level)
+                    int regen = (int)Math.round(3 * Math.pow(1.1, p.getLevel() - 1));
+                    regen = Math.min(50, regen);
+                    p.regenSp(regen);
+                } else {
+                    // entering enemy's turn -> enemy regen (cap to 50)
+                    int regenE = (int)Math.round(3 * Math.pow(1.1, e.getLevel() - 1));
+                    regenE = Math.min(50, regenE);
+                    e.regenSp(regenE);
                 }
             }
 
@@ -241,7 +272,7 @@ public class Combat {
         // rare items
         if (rand.nextInt(10000) < 40) { inv.addItem(Potion.supremePotion(), 1); drops.add("Supreme HP Elixir"); }
         if (rand.nextInt(10000) < 10) { inv.addItem(new HolyChalice(), 1); drops.add("Holy Chalice"); }
-        if (rand.nextInt(10000) < 10000) { inv.addItem(new Blade("Excalibur", 300, 150), 1); drops.add("Blade: Excalibur"); }
+        if (rand.nextInt(10000) < 10000) { inv.addItem(new Blade("Excalibur", 300, 150), 1); drops.add("Excalibur"); }
 
         if (drops.isEmpty()) {
             System.out.println("Loot: none");

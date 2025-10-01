@@ -17,7 +17,7 @@ public class PoisonDebuff extends Buff {
     @Override
     public void tick(Character target) {
         super.tick(target);
-        target.takeDamage(damagePerTurn, 0);
+    target.takeDamage(damagePerTurn, 0, src.characters.DamageType.PURE);
         System.out.println(target.getName() + " takes " + damagePerTurn + " poison damage!");
     }
 

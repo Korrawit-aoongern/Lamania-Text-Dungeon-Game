@@ -8,11 +8,10 @@ public class WaterSoothing extends MagicalSkill {
 
     @Override
     public void use(Character user, Character target) {
-        int heal = (int)(user.getMag() * 0.40 * getMultiplier());
+        int heal = (int)(user.getMag() * 0.65 * getMultiplier());
         // Healing self
-        user.heal(heal);
-    user.applyBuff(new MagBuff(2, 20), "water_soothing");
         System.out.println(user.getName() + " uses Water Soothing healing " + heal + " HP and gains 20% MAG for 2 turns.");
+        user.applyBuff(new MagBuff(2, 25), "water_soothing");user.heal(heal);
         incrementUse();
     }
 }

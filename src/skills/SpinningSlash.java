@@ -9,8 +9,9 @@ public class SpinningSlash extends PhysicalSkill {
     public void use(Character user, Character target) {
         int attackerPen = user.getPen();
         int dmg = calcDamage(user, 65);
-        target.takeDamage(dmg, attackerPen);
-        System.out.println(user.getName() + " spins 360° with Spinning Slash dealing " + dmg + " damage!");
+
+        System.out.println(user.getName() + " spins 360° with Spinning Slash!");
+        target.takeDamage(dmg, attackerPen, src.characters.DamageType.PHYSICAL);
         incrementUse();
     }
 }

@@ -6,6 +6,7 @@ import src.status.BuffManager;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.EnumMap;
 
 public abstract class Character {
     protected String name;
@@ -24,6 +25,8 @@ public abstract class Character {
     protected int penModifier = 0;
     protected int damageMultiplier = 0;
     protected double damageTakenModifier = 1.0;
+    // per-damage-type modifier multipliers (1.0 = normal, >1.0 = more damage taken, 0.0 = immune)
+    protected EnumMap<DamageType, Double> typeModifiers = new EnumMap<>(DamageType.class);
     protected boolean isAlive = getAlive();
 
 
@@ -39,6 +42,8 @@ public abstract class Character {
         this.mag = mag;
         this.pen = pen;
         this.exp = 0;
+        // initialize type modifiers to neutral
+        for (DamageType dt : DamageType.values()) typeModifiers.put(dt, 1.0);
     }
 
     // Encapsulation (getters/setters)
@@ -96,6 +101,14 @@ public abstract class Character {
 
     public void setDamageTakenModifier(double modifier) {
         this.damageTakenModifier = modifier;
+    }
+
+    public void setTypeModifier(DamageType type, double multiplier) {
+        typeModifiers.put(type, multiplier);
+    }
+
+    public double getTypeModifier(DamageType type) {
+        return typeModifiers.getOrDefault(type, 1.0);
     }
     public void setMaxHp(int newMaxHp) {
         this.maxHp = newMaxHp;
@@ -169,20 +182,39 @@ public abstract class Character {
     // Polymorphic combat behavior
     public abstract void takeTurn(Character opponent);
 
-    public void takeDamage(int dmg, int attackerPen) {
+    // Backwards-compatible wrapper (assumes PHYSICAL)
+    public int takeDamage(int dmg, int attackerPen) {
+        return takeDamage(dmg, attackerPen, DamageType.PHYSICAL);
+    }
+
+    // New damage-taking API that supports damage types and per-type modifiers.
+    // Returns the actual damage applied after defenses/modifiers.
+    public int takeDamage(int dmg, int attackerPen, DamageType type) {
         if (immune) {
             System.out.println(getName() + " is immune to damage!");
-            return;
+            return 0;
         }
-        else {
-            int finalDMG = Math.max(0, (int)Math.round((dmg - (getDef() - attackerPen)) * damageTakenModifier));
-            hp -= finalDMG;
-            if (hp < 0) {
-                hp = 0;
-                isAlive = false;
-            }
-            System.out.println(getName() + " takes " + finalDMG + " damage! (HP left: " + hp + ")");
+
+        double typeMult = getTypeModifier(type);
+        if (typeMult <= 0.0) {
+            System.out.println(getName() + " resists that type of damage!");
+            return 0;
         }
+
+        // For magical damage, use MAG as defense; for physical, use DEF as defense. PURE ignores defenses.
+        int effectiveDef = 0;
+        if (type == DamageType.PHYSICAL) effectiveDef = getDef();
+        else if (type == DamageType.MAGICAL) effectiveDef = getMag();
+        else effectiveDef = 0;
+
+        int finalDMG = Math.max(0, (int)Math.round((dmg - (effectiveDef - attackerPen)) * damageTakenModifier * typeMult));
+        hp -= finalDMG;
+        if (hp < 0) {
+            hp = 0;
+            isAlive = false;
+        }
+        System.out.println(getName() + " takes " + finalDMG + " damage! (HP left: " + hp + ")");
+        return finalDMG;
     }
 
     public void addSkill(AbstractSkill s) { skills.add(s); }

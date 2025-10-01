@@ -10,9 +10,10 @@ public class HeavensFall extends MagicalSkill {
     public void use(Character user, Character target) {
         int attackerPen = user.getPen();
         int dmg = calcDamage(user, 200);
-        target.takeDamage(dmg, attackerPen);
+
+        System.out.println(user.getName() + " summons Heaven's Fall crushing foe, Enemy stunned 2 turn.");
+        target.takeDamage(dmg, attackerPen, src.characters.DamageType.MAGICAL);
         target.applyBuff(new StunDebuff(2), "heavens_fall");
-        System.out.println(user.getName() + " summons Heaven's Fall crushing foe for " + dmg + " dmg! Enemy stunned 2 turn.");
         incrementUse();
     }
 }

@@ -2,10 +2,12 @@ package src.game;
 
 import java.util.Random;
 import java.util.Scanner;
+import java.util.List;
+import java.util.ArrayList;
 import src.characters.Enemy;
 import src.characters.Player;
-import src.characters.enemies.Goblin;
-import src.characters.enemies.Slime;
+import src.characters.enemies.*;
+import java.util.function.Supplier;
 
 public class Game {
     private final Player player;
@@ -108,6 +110,11 @@ public class Game {
                 continue;
             }
 
+            if (dir.equalsIgnoreCase("STATS") || dir.equalsIgnoreCase("STAT")) {
+                player.printStats();
+                continue;
+            }
+
             // Move up to stepsPerMove tiles in the requested direction, stopping at walls.
             int dx = 0, dy = 0;
             switch (dir) {
@@ -150,7 +157,7 @@ public class Game {
             }
 
             // base 20% chance random encounter, modified by active consumable effects
-            double chance = 0.0;
+            double chance = 20.0;
             if (player.hasUnholyRelicActive()) chance *= 1.5; // +50%
             if (player.hasCleansingClothActive()) chance *= 0.5; // -50%
 
@@ -201,10 +208,43 @@ public class Game {
             chosenLevel = minLevel + idx;
         }
 
-        Enemy e = rand.nextBoolean() ? new Goblin() : new Slime();
-        // Scale enemy to the chosen level (scaleUpByLevels increases levels incrementally)
+        // Build a list of candidate enemy factories whose base level <= player level
+        List<Supplier<Enemy>> factories = new ArrayList<>();
+        factories.add(Goblin::new);
+        factories.add(Slime::new);
+        factories.add(GoblinWarrior::new);
+        factories.add(GoblinMage::new);
+        factories.add(KingSlime::new);
+        factories.add(SkeletonWarrior::new);
+        factories.add(SkeletonMage::new);
+        factories.add(SkeletonLancer::new);
+        factories.add(SkeletonElite::new);
+
+        // If player is >= 30, small chance to spawn Demon King as a boss (rare)
+        boolean bossRoll = playerLevel >= 30 && rand.nextInt(100) < 5; // 5% chance
+        if (bossRoll) {
+            Enemy boss = new DemonKing();
+            int bossLevelsToAdd = Math.max(0, (playerLevel + 2) - boss.getLevel());
+            if (bossLevelsToAdd > 0) boss.scaleUpByLevels(bossLevelsToAdd);
+            return boss;
+        }
+
+        // Filter factories by their prototype's base level
+        List<Supplier<Enemy>> candidates = new ArrayList<>();
+        for (Supplier<Enemy> f : factories) {
+            Enemy proto = f.get();
+            if (proto.getLevel() <= playerLevel) candidates.add(f);
+        }
+        if (candidates.isEmpty()) candidates.add(Goblin::new); // fallback
+
+        Supplier<Enemy> chosenFactory = candidates.get(rand.nextInt(candidates.size()));
+        Enemy e = chosenFactory.get();
+        // Scale enemy to the chosenLevel (scaleUpByLevels increases levels incrementally)
         int levelsToAdd = Math.max(0, chosenLevel - e.getLevel());
         if (levelsToAdd > 0) e.scaleUpByLevels(levelsToAdd);
+        // Rebalance numeric stats to be roughly in-line with the player's current power
+        // This ensures enemies of the same level are actually a comparable threat.
+        try { e.rebalanceToPlayer(player); } catch (Exception ignored) {}
         return e;
     }
 }

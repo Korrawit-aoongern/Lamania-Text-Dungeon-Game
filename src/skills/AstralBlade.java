@@ -8,8 +8,9 @@ public class AstralBlade extends MagicalSkill {
     @Override
     public void use(Character user, Character target) {
         int dmg = target.getHp() / 2;
-        target.takeDamage(dmg, 0);
+    
         System.out.println(user.getName() + " slashes with Astral Blade dealing " + dmg + " (50% of target HP)!");
+        target.takeDamage(dmg, 0, src.characters.DamageType.MAGICAL);
         incrementUse();
     }
 }

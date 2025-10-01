@@ -28,7 +28,7 @@ public class PoisonWeaponBuff extends Buff {
     public void onHit(Character user, Character target) {
         int poisonDmg = (int)(user.getMag() * (percentMag / 100.0));
         System.out.println("Poison lash deals " + poisonDmg + " extra damage!");
-        target.takeDamage(poisonDmg, 0);
+    target.takeDamage(poisonDmg, 0, src.characters.DamageType.PURE);
         target.getBuffManager().addBuff(target, new PoisonDebuff(poisonDmg, dotDuration));
 
         remainingUses--;

@@ -8,8 +8,8 @@ public class PlagueSplit extends MagicalSkill {
 
     @Override
     public void use(Character user, Character target) {
-    target.applyBuff(new DefDebuff(35, 3), "plague_split");
         System.out.println(user.getName() + " casts Plague Split! Target DEF -35% (3 turns). ");
+        target.applyBuff(new DefDebuff(35, 3), "plague_split");
         incrementUse();
     }
 }
