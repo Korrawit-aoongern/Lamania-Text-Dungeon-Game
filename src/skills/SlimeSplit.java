@@ -13,4 +13,7 @@ public class SlimeSplit extends MagicalSkill {
         target.applyBuff(new AtkDebuff(10, 2), "slime_split");
         incrementUse();
     }
+
+    @Override
+    protected boolean isBuffSkill() { return true; }
 }

@@ -12,9 +12,12 @@ public class TripleSlash extends PhysicalSkill {
         int d2 = calcDamage(user, 35);
         int d3 = calcDamage(user, 30);
         System.out.println(user.getName() + " uses Triple Slash!");
-        target.takeDamage(d1, attackerPen, src.characters.DamageType.PHYSICAL);
-        target.takeDamage(d2, attackerPen, src.characters.DamageType.PHYSICAL);
-        target.takeDamage(d3, attackerPen, src.characters.DamageType.PHYSICAL);
+    target.takeDamage(d1, attackerPen, src.characters.DamageType.PHYSICAL);
+    invokeOnHitEffects(user, target);
+    target.takeDamage(d2, attackerPen, src.characters.DamageType.PHYSICAL);
+    invokeOnHitEffects(user, target);
+    target.takeDamage(d3, attackerPen, src.characters.DamageType.PHYSICAL);
+    invokeOnHitEffects(user, target);
         incrementUse();
     }
 }

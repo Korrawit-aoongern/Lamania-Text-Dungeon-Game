@@ -13,6 +13,7 @@ public class TornadoBlade extends PhysicalSkill {
         for (int i=0; i<10; i++) {
             int dmg = calcDamage(user, 12);
             target.takeDamage(dmg, attackerPen, src.characters.DamageType.PHYSICAL);
+            invokeOnHitEffects(user, target);
             total += dmg;
         }
     user.applyBuff(new StunDebuff(2), "tornado_blade");

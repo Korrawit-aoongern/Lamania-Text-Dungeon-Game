@@ -27,14 +27,18 @@ public class PoisonWeaponBuff extends Buff {
     // hook for combat system to apply on-hit effect
     public void onHit(Character user, Character target) {
         int poisonDmg = (int)(user.getMag() * (percentMag / 100.0));
-        System.out.println("Poison lash deals " + poisonDmg + " extra damage!");
-    target.takeDamage(poisonDmg, 0, src.characters.DamageType.PURE);
-        target.getBuffManager().addBuff(target, new PoisonDebuff(poisonDmg, dotDuration));
+        System.out.println("Poison inflict: " + poisonDmg + " damage per turn for " + dotDuration + " turns.");
+        // Add a Poison debuff (duration, damage)
+        target.getBuffManager().addBuff(target, new PoisonDebuff(dotDuration, poisonDmg));
 
         remainingUses--;
         if (remainingUses <= 0) {
-            duration = 0; // expire
+            // cleanly remove this buff immediately from the user's active buffs
+            duration = 0; // mark expired
             remove(user);
+            try {
+                user.getBuffManager().getActiveBuffs().remove(this);
+            } catch (Exception ignored) {}
         }
     }
 }

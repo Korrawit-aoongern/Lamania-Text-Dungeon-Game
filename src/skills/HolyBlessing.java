@@ -14,4 +14,7 @@ public class HolyBlessing extends MagicalSkill {
         user.applyBuff(new AtkBuff(1, 20), "holy_blessing"); // +20 ATK for 1 turn
         incrementUse();
     }
+
+    @Override
+    protected boolean isBuffSkill() { return true; }
 }

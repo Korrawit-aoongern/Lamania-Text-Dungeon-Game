@@ -27,7 +27,8 @@ public class Defbuff extends Buff {
     @Override
     public void apply(Character target) {
         if (isPercentage) {
-            appliedAmount = target.getDef() * value / 100;
+            // Use floating calculation and ensure at least +1 DEF for low-DEF targets
+            appliedAmount = (int)Math.max(1, Math.round(target.getDef() * (value / 100.0)));
             target.modifyDef(appliedAmount);
             System.out.println(target.getName() + " gains +" + appliedAmount + " DEF (" + value + "%) for " + duration + " turns.");
         } else {
