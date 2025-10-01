@@ -1,7 +1,6 @@
 package src.skills;
 
 import src.characters.Character;
-import src.status.Defbuff;
 import src.status.StunDebuff;
 
 public class SingleSlash extends PhysicalSkill {

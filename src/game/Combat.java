@@ -1,18 +1,17 @@
 package src.game;
 
-import src.characters.Player;
-import src.characters.Enemy;
-
-import java.util.Scanner;
 import java.util.Random;
-import src.items.Scrolls;
-import src.items.Potion;
-import src.items.HolyChalice;
-import src.items.Inventory;
-import src.items.UnholyRelic;
+import java.util.Scanner;
+import src.characters.Enemy;
+import src.characters.Player;
 import src.items.Blade;
 import src.items.CleansingCloth;
+import src.items.HolyChalice;
+import src.items.Inventory;
 import src.items.ItemStack;
+import src.items.Potion;
+import src.items.Scrolls;
+import src.items.UnholyRelic;
 
 public class Combat {
     public static void fight(Player p, Enemy e, Scanner sc) {
@@ -203,7 +202,8 @@ public class Combat {
 
         if (p.getAlive()) {
             System.out.println("You defeated " + e.getName() + "!");
-            p.gainExp(1000);
+            int xp = e.getExpReward();
+            p.gainExp(xp);
                 System.out.println("Checking for loot...");
                 addLoot(inv, rand);
         } else {
@@ -289,6 +289,11 @@ public class Combat {
         System.out.println("Active buffs/debuffs:");
         for (var b : e.getBuffManager().getActiveBuffs()) {
             System.out.println("  - " + b.getName() + " (" + b.getDuration() + " turns)");
+        }
+        System.out.println("Known skills:");
+        for (int i = 0; i < e.getSkills().size(); i++) {
+            var s = e.getSkills().get(i);
+            System.out.println("  " + (i + 1) + ". " + s.getName() + " (Cost " + s.getCost() + " SP)");
         }
         System.out.println("-------------------");
     }

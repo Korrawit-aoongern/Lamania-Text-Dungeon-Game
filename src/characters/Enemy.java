@@ -3,6 +3,10 @@ package src.characters;
 public class Enemy extends Character {
     private int zeroDamageStreak = 0; // consecutive turns dealing 0 damage
     private Integer lastSkillUsedIndex = null; // prevent repeating the same skill twice
+    // Role-based AI modifiers
+    protected String role = "grunt"; // "mage", "warrior", "boss"
+    protected double skillPriorityBias = 1.0; // multiplies base skill chance
+    protected int expReward = 0;
 
     public Enemy(String name, int level, int hp, int sp, int atk, int def, int mag, int pen) {
         super(name, level, hp, sp, atk, def, mag, pen);
@@ -11,6 +15,9 @@ public class Enemy extends Character {
             addSkill(new src.skills.SingleSlash());
         } catch (Exception ignored) {}
     }
+
+    public int getExpReward() { return expReward; }
+    public void setExpReward(int xp) { this.expReward = xp; }
 
     @Override
     public int getMaxSkillSlots() { return 4; }
@@ -39,9 +46,9 @@ public class Enemy extends Character {
         double hpRatio = (double)getHp() / getMaxHp();
         int spNow = getSp();
 
-        int baseAttackChance = 70;
-        int baseGuardChance = 15;
-        int baseSkillChance = 15;
+    int baseAttackChance = 70;
+    int baseGuardChance = 15;
+    int baseSkillChance = (int)Math.round(15 * skillPriorityBias);
 
         if (spNow < 8) baseGuardChance += 15;
         if (hpRatio < 0.4) baseGuardChance += 15;
@@ -71,7 +78,7 @@ public class Enemy extends Character {
             for (int i = 0; i < skills.size(); i++) {
                 if (skills.get(i).getCost() <= spNow) usable.add(i);
             }
-            if (!usable.isEmpty()) {
+                if (!usable.isEmpty()) {
                 // Prefer higher-cost skills but avoid repeating the same skill twice
                 // Weight choices by cost
                 int totalWeight = 0;
@@ -80,6 +87,11 @@ public class Enemy extends Character {
                     int idx = usable.get(i);
                     int cost = skills.get(idx).getCost();
                     int w = Math.max(1, cost / 10); // cost-based weight
+                        // Give preference to caster-style enemies for magical skills
+                        if ("mage".equals(role)) {
+                            // boost weight for magical skills
+                            if (skills.get(idx) instanceof src.skills.MagicalSkill) w *= 2;
+                        }
                     // discourage picking the last used skill
                     if (lastSkillUsedIndex != null && lastSkillUsedIndex == idx) w = Math.max(1, w / 3);
                     weights[i] = w;
