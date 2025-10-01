@@ -38,12 +38,8 @@ public class Player extends Character {
         super(name, 1, 100, 50, 30, 5, 5, 0);
         this.expToLevel = 100;
         skills.add(new SingleSlash());
-        skills.add(new PlagueSplit());
-        skills.add(new WaterSoothing());
-        skills.add(new HolyBlessing());
-        skills.add(new PoisonInfuse());
         // starting items (optional)
-        inventory.addItem(Potion.smallPotion(), 1);
+        inventory.addItem(Potion.smallPotion(), 3);
     }
 
     @Override
