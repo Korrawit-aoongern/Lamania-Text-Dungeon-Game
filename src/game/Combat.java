@@ -9,6 +9,11 @@ import src.items.CleansingCloth;
 import src.items.HolyChalice;
 import src.items.Inventory;
 import src.items.ItemStack;
+import src.items.Gauntlets;
+import src.items.Helmet;
+import src.items.Chestplate;
+import src.items.Boots;
+import src.items.Staff;
 import src.items.Potion;
 import src.items.Scrolls;
 import src.items.UnholyRelic;
@@ -275,6 +280,12 @@ public class Combat {
         if (rand.nextInt(10000) < 40) { inv.addItem(Potion.supremePotion(), 1); drops.add("Supreme HP Elixir"); }
         if (rand.nextInt(10000) < 10) { inv.addItem(new HolyChalice(), 1); drops.add("Holy Chalice"); }
         if (rand.nextInt(10000) < 10000) { inv.addItem(new Blade("Excalibur", 300, 150), 1); drops.add("Excalibur"); }
+        if (rand.nextInt(10000) < 10000) { inv.addItem(new Staff("Elder Staff", 200), 1); drops.add("Elder Staff"); }
+        if (rand.nextInt(10000) < 10000) { inv.addItem(new Helmet("Dragon Helm", 100, 50), 1); drops.add("Dragon Helm"); }
+        if (rand.nextInt(10000) < 10000) { inv.addItem(new Chestplate("Dragon Chestplate", 150, 75), 1); drops.add("Dragon Chestplate"); }
+        if (rand.nextInt(10000) < 10000) { inv.addItem(new Gauntlets("Dragon Gauntlets", 75, 25), 1); drops.add("Dragon Gauntlets"); }
+        if (rand.nextInt(10000) < 10000) { inv.addItem(new Boots("Dragon Boots", 70, 20), 1); drops.add("Dragon Boots"); }
+
 
         if (drops.isEmpty()) {
             System.out.println("Loot: none");
